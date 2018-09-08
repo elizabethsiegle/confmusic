@@ -1,0 +1,26 @@
+{
+  "name": "bashokgo",
+  "version": "1.0.0",
+  "description": "$bash okgo",
+  "main": "idkokgo.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://code.hq.twilio.com/lsiegle/okgo.git"
+  },
+  "keywords": [
+    "lol"
+  ],
+  "author": "lizzie, jarod, devin, ricky, andres",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "express": "^4.16.3",
+    "http": "0.0.0",
+    "path": "^0.12.7",
+    "twilio": "^3.19.2",
+    "urllib": "^2.29.1"
+  }
+}
