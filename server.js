@@ -1,6 +1,7 @@
 //call +17172971757 configured with /joinconference , hear a welcome msg, redirect to /soundparticipant, get rickrolled
-require('dotenv').load();
 'use strict';
+var dotenv = require('dotenv');
+dotenv.load();
 const bodyParser = require('body-parser');
 const express = require('express');
 const http = require('http');
@@ -50,7 +51,6 @@ app.post('/joinconference', (req, res) => {
   dial.conference('okgoconference1', {
     startConferenceOnEnter: true, //run once
   });
-  //twiml.redirect('/soundparticipant') //don't stay in conference
   res.type('text/xml').send(twiml.toString());
 })
 
@@ -64,8 +64,8 @@ app.post('/soundparticipant', (req, res) => {
     $('#drum-pad span').click(function() {
       var button = $(this).attr('data-key');
       if(button == 'bass') {
-        //client starts call to okgoconference, play over the phone.
-        alert("bass clicked")
+        //client starts call to okgoconference, play rickroll over the phone.
+        console.log("bass clicked")
         call = client.calls
         .create({
           url: 'https://lizzie.ngrok.io/rickroll', //point to twiml that rickrolls
@@ -79,22 +79,7 @@ app.post('/soundparticipant', (req, res) => {
       }
     });
   });
-
-  //client starts call to okgoconference, play over the phone.
-  client.calls
-  .create({
-    //NOT SURE ABOUT THESE the url and to
-    url: 'http://jreyes.ngrok.io/rickroll', //point to twiml that rickrolls
-    to: '+18654019875', //num configured to /joinconference +17172971757
-    from: '+12066505813', //ghost number, 2nd num, configured to /soundparticipant
-  })
-  .then(call => {
-    console.log(call.sid);
-    res.type('text/xml').send(call.sid);
-  })
-  .catch(err => console.log(err))
 });
-
 
 //make static wav file public to play
 //DOESN'T WORK ATM
