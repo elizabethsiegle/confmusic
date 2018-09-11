@@ -1,3 +1,5 @@
+//call +17172971757 configured with /joinconference , hear a welcome msg, redirect to /soundparticipant, get rickrolled
+//I think this works
 'use strict';
 const bodyParser = require('body-parser');
 const urlencoded = require('body-parser').urlencoded;
@@ -25,6 +27,7 @@ app.use(express.static('audio/*')) //static
 
 
 // configure routes
+//right now: hear welcome message
 app.post('/joinconference', (req, res) => {
   let twiml = new twilio.twiml.VoiceResponse(); 
   twiml.say('Welcome to the conference!');
@@ -32,8 +35,7 @@ app.post('/joinconference', (req, res) => {
   res.type('text/xml').send(twiml.toString());
 })
 
-//later on: be listener, edit callsid
-//if button clicked (in html file)
+//TODO: add if button clicked (in html file), later on: be listener, edit callsid
 // RIGHT NOW: attendees call in to +17172971757, configured with /soundparticipant 
 app.post('/soundparticipant', (req, res) => {
   require('dotenv').load();
@@ -41,10 +43,10 @@ app.post('/soundparticipant', (req, res) => {
   var client = require('twilio')(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_TOKEN);
   
   // Generate a TwiML response
-  //client starts call to okgoconference1
-  //Play over the phone.
+  //client starts call to okgoconference, play over the phone.
   var call = client.calls
   .create({
+    //NOT SURE ABOUT THESE the url and to
     url: 'okgoconference1', //join conf call (okgoconference1)
     to: 'okgoconference1', //num configured to /joinconference +17172971757
     from: '+15612200834', //ghost number, 2nd num, configured to /soundparticipant
@@ -57,11 +59,12 @@ app.post('/soundparticipant', (req, res) => {
   //   startConferenceOnEnter: false,
   // });
  
-  twiml2.play(classic); //classic url for now
+  twiml2.play(classic); //classic url for now, need to work on okgo .wav files
   res.type('text/xml').send(twiml2.toString());
 });
 
 //make static wav file public to play
+//DOESN'T WORK ATM
 app.post('/audio/okgo-demo-sound1.wav', (req, res) => {
   twiml2.play(okgosound1)
   res.type('audio/x-wav').send(twiml2.toString());
