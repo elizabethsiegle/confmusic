@@ -1,3 +1,16 @@
+<head>
+    <script type="text/javascript" src="main.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script>
+        //get button clicked 
+        $(document).ready(function() {
+            $('#drum-pad span').click(function() {
+                var button = $(this).attr('data-key');
+                console.log(button);
+            });
+        });
+    </script>
+</head>
 <body>
   <style>
     body {
@@ -45,32 +58,32 @@
     }
   </style>
     <div id="drum-pad">
-        <div data-key="81" class="key">
-            <span class="sound">bass</span>
-        </div>
-        <div data-key="87" class="key">
-            <span class="sound">drum</span>
-        </div>
-        <div data-key="69" class="key">
-            <span class="sound">sound-1</span>
-        </div>
-        <div data-key="65" class="key">
-            <span class="sound">sound-2</span>
-        </div>
-        <div data-key="83" class="key">
-            <span class="sound">sound-3</span>
-        </div>
-        <div data-key="68" class="key">
-            <span class="sound">sound-4</span>
-        </div>
-        <div data-key="90" class="key">
-            <span class="sound">synth-1</span>
-        </div>
-        <div data-key="88" class="key">
-            <span class="sound">synth-2</span>
-        </div>
-        <div data-key="67" class="key">
-            <span class="sound">oh-yeah</span>
-        </div>
+        <span data-key="bass" class="key" >
+           bass
+       </span>
+        <span data-key="drum" class="key">
+            drum
+        </span>
+        <span data-key="sound-1" class="key">
+           sound-1
+       </span>
+        <span data-key="sound-2" class="key">
+           sound-2
+       </span>
+        <span data-key="sound-3" class="key">
+            sound-3
+        </span>
+        <span data-key="sound-4" class="key">
+            sound-4
+        </span>
+        <span data-key="synth-1" class="key">
+            synth-1
+        </span>
+        <span data-key="synth-2" class="key">
+            synth-2
+        </span>
+        <span data-key="oh-yeah" class="key">
+            oh-yeah
+        </span>
     </div>
 </body>
