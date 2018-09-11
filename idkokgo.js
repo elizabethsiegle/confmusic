@@ -10,75 +10,75 @@ const VoiceResponse = require('twilio').twiml.VoiceResponse
 const port = process.env.PORT || 3000;
 const app = express();
 const server = http.createServer(app);
-const MODERATOR = '+15558675310';
-
-let okgobass = './audio/okgo-demo-bass.wav' 
+const MODERATOR = '+16507878004';
+const twilio = require('twilio');
+let twiml2 = new twilio.twiml.VoiceResponse();
+let okgobass = 'audio/okgo-demo-bass.wav' 
 let classic = 'https://demo.twilio.com/docs/classic.mp3'
-let okgodrum = './audio/okgo-demo-drum.wav'
-let okgosound1 = '/audio/okgo-demo-sound1.wav'
+let okgodrum = 'audio/okgo-demo-drum.wav'
+let okgosound1 = 'audio/okgo-demo-sound1.wav'
 // configuring middleware
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-app.use(urlencoded({ extended: false }));
+app.use(bodyParser.raw({ type: 'audio/wav', limit: '50mb' }));
+app.use(express.static('audio/*')) //static 
+
 
 // configure routes
 app.post('/joinconference', (req, res) => {
-  const twilio = require('twilio');
   let twiml = new twilio.twiml.VoiceResponse(); 
-  const dial = twiml.dial();
   twiml.say('Welcome to the conference!');
-  if (req.body.From == MODERATOR) {
-    dial.conference('okgoconference1', {
-      startConferenceOnEnter: true,
-      endConferenceOnExit: true,
-    });
-  } 
-  else {
-    // Otherwise have the caller join as a regular participant
-    dial.conference('okgoconference1', {
-      startConferenceOnEnter: false,
-    });
-  }
-  require('dotenv').load();
-
-  var client = require('twilio')(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_TOKEN);
-  // Generate a TwiML response
-  // //client starts call to okgoconference1
-  // Play over the phone.
-  var call = client.calls
-  .create({
-    url: '/joinconference', //join conf? 
-    to: '+17172971757', //num in /joinconference
-    from: '+15612200834', //num in /soundparticipant 
-  })
-  .then(call => console.log(call.sid));
-  twiml.play(classic) //okgodrum
+  twiml.redirect('/soundparticipant')
   res.type('text/xml').send(twiml.toString());
-});  
+})
 
 //later on: be listener, edit callsid
 //if button clicked (in html file)
+// RIGHT NOW: attendees call in to +17172971757, configured with /soundparticipant 
 app.post('/soundparticipant', (req, res) => {
-  //create rest client
   require('dotenv').load();
-  //not sure why this code doesn't play
+  //create rest client
   var client = require('twilio')(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_TOKEN);
+  
   // Generate a TwiML response
-  // //client starts call to okgoconference1
-  // Play over the phone.
+  //client starts call to okgoconference1
+  //Play over the phone.
   var call = client.calls
   .create({
-    url: '/joinconference', //join conf? 
-    to: '+17172971757', //num in /joinconference
-    from: '+15612200834', //num in /soundparticipant 
+    url: 'okgoconference1', //join conf call (okgoconference1)
+    to: 'okgoconference1', //num configured to /joinconference +17172971757
+    from: '+15612200834', //ghost number, 2nd num, configured to /soundparticipant
   })
   .then(call => console.log(call.sid));
-  twiml.play(okgodrum) //classic
-  
-  res.type('audio/x-wav').send(twiml.toString());
-  //later update call with callsid
+  let twiml2 = new twilio.twiml.VoiceResponse(); 
+  console.log("hurr2")
+  // const dial2 = twiml2.dial();
+  //  dial2.conference('okgoconference1', {
+  //   startConferenceOnEnter: false,
+  // });
+ 
+  twiml2.play(classic); //classic url for now
+  res.type('text/xml').send(twiml2.toString());
 });
 
+//make static wav file public to play
+app.post('/audio/okgo-demo-sound1.wav', (req, res) => {
+  twiml2.play(okgosound1)
+  res.type('audio/x-wav').send(twiml2.toString());
+});
+
+function wait(ms){
+   var start = new Date().getTime();
+   var end = start;
+   while(end < start + ms) {
+     end = new Date().getTime();
+  }
+}
+//latency of updating live-call?
+//unmuting ghost caller?
+//update call with sid
+//each conf call = button
+//effects, volume = connect inputs to right asset
 
 // start server
 server.listen(port, () => {
