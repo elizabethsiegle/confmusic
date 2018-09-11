@@ -79,6 +79,20 @@ app.post('/soundparticipant', (req, res) => {
       }
     });
   });
+
+  //client starts call to okgoconference, play over the phone.
+  client.calls
+  .create({
+    //NOT SURE ABOUT THESE the url and to
+    url: 'http://jreyes.ngrok.io/rickroll', //point to twiml that rickrolls
+    to: '+18654019875', //num configured to /joinconference +17172971757
+    from: '+12066505813', //ghost number, 2nd num, configured to /soundparticipant
+  })
+  .then(call => {
+    console.log(call.sid);
+    res.type('text/xml').send(call.sid);
+  })
+  .catch(err => console.log(err))
 });
 
 
