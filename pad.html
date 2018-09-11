@@ -1,16 +1,18 @@
 <head>
-    <script type="text/javascript" src="main.js"></script>
+<!--     <script type="text/javascript" src="main.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script> -->
     <script>
-        //get button clicked 
-        $(document).ready(function() {
-            $('#drum-pad span').click(function() {
-                var button = $(this).attr('data-key');
-                console.log(button);
-            });
-        });
+        function wait(ms){
+            var start = new Date().getTime();
+            var end = start;
+            while(end < start + ms) {
+                end = new Date().getTime();
+            }
+        }
     </script>
 </head>
+
 <body>
   <style>
     body {
