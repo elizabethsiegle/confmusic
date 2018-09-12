@@ -2,24 +2,24 @@
 'use strict';
 var dotenv = require('dotenv');
 dotenv.load();
-const bodyParser = require('body-parser'), 
-express = require('express'),
-http = require('http'),
-qs = require('querystring'),
-fs = require('fs'),
-path = require('path'),
-VoiceResponse = require('twilio').twiml.VoiceResponse,
-app = express(),
-twilio = require('twilio'),
-client = require('twilio')(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN),
-urllib = require('urllib'),
-cheerio = require('cheerio'),
-url = require('url'),
-twiml2 = new twilio.twiml.VoiceResponse(),
-okgobass = 'audio/okgo-demo-bass.wav',
-classic = 'https://demo.twilio.com/docs/classic.mp3',
-okgodrum = 'audio/okgo-demo-drum.wav',
-okgosound1 = 'audio/okgo-demo-sound1.wav';
+const bodyParser = require('body-parser');
+const express = require('express');
+const http = require('http');
+const fs = require('fs')
+const path = require('path');
+var urllib = require('urllib');
+var url = require('url');
+const VoiceResponse = require('twilio').twiml.VoiceResponse
+const app = express();
+const twilio = require('twilio');
+let twiml2 = new twilio.twiml.VoiceResponse();
+let okgobass = 'audio/okgo-demo-bass.wav' 
+let classic = 'https://demo.twilio.com/docs/classic.mp3'
+let cowbell = 'https://api.twilio.com/cowbell.mp3'
+let okgodrum = 'audio/okgo-demo-drum.wav'
+let okgosound1 = 'audio/okgo-demo-sound1.wav'
+
+
 const client = require('twilio')(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN)
 const fromNumber = process.env.TWILIO_NUMBER
 const toNumber = process.env.OKGO_CONF_NUMBER
@@ -28,6 +28,7 @@ const callbackURL = process.env.CALLBACK_URL
 // configuring middleware
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.raw({ type: 'audio/wav', limit: '50mb' }));
+app.use(bodyParser.json());
 app.use(express.static('audio/*')) //static 
 
 // don't need jsdom because we can just make a request to our soundparticipant url from the client
@@ -37,6 +38,13 @@ app.post('/rickroll', (req, res) => {
   let twiml2 = new twilio.twiml.VoiceResponse(); 
   console.log("rickroll")
   twiml2.play(classic); //classic url for now, need to work on okgo .wav files
+  res.type('text/xml').send(twiml2.toString());
+});
+
+app.post('/cowbell', (req, res) => {
+  let twiml2 = new twilio.twiml.VoiceResponse(); 
+  console.log("cowbell")
+  twiml2.play(cowbell); //classic url for now, need to work on okgo .wav files
   res.type('text/xml').send(twiml2.toString());
 });
 
@@ -50,52 +58,43 @@ app.post('/joinconference', (req, res) => {
     startConferenceOnEnter: true, //run once
   });
   res.type('text/xml').send(twiml.toString());
-});
+})
 
 //TODO: add if button clicked (in html file), be listener, edit callsid
 // RIGHT NOW: attendees call in to +17172971757, configured with /soundparticipant 
 //curl or function to make music on command, do once
 //no one ever calls this number, request happens in background
-
 app.post('/soundparticipant', (req, res) => {
-  console.log(req.body.button);
-  if (req.body.button = "oh-yeah") {
+  console.log(req.body.button); //print in terminal, ngrok
+  if(req.body.button == "oh-yeah") {
+    console.log("oh-yeah clicked, nodejs");
     client.calls
     .create({
-      url: 'https://lizzie.ngrok.io/rickroll', //point to twiml that rickrolls
-      to: '+17172971757', //num configured to /joinconference +17172971757
-      from: '+15612200834' //'+12066505813', //ghost number, 2nd num, configured to /soundparticipant
-      }) //create 
+      url: callbackURL, //TODO currently rickrolls should instead point to listener for button click
+      to: toNumber, //num configured to /joinconference +17172971757
+      from: fromNumber // any verified or twilio number
+    })
     .then(call => {
       console.log(call.sid);
-      res.type('text/xml').send(call.sid);
+        res.type('text/xml').send(call.sid);
+    }).catch(err => console.log(err))
+  } //if "oh-yeah"
+  else if(req.body.button == "bass") {
+    console.log("oh-yeah clicked, nodejs");
+    client.calls
+    .create({
+      url: 'http://lizzie.ngrok.io/cowbell', //TODO currently rickrolls should instead point to listener for button click
+      to: toNumber, //num configured to /joinconference +17172971757
+      from: fromNumber // any verified or twilio number
+    })
+    .then(call => {
+      console.log(call.sid);
+        res.type('text/xml').send(call.sid);
     }).catch(err => console.log(err))
   }
-  else {
-    console.log("sent button that wasn't oh-yeah")
-  }
-});
-
-app.post('/rickroll', (req, res) => {
-  //twiml play classic
-
-  let twiml2 = new twilio.twiml.VoiceResponse();
-  console.log("rickroll");
-  twiml2.play(classic); //classic url for now, need to work on okgo .wav files
-  res.type('text/xml').send(twiml2.toString());
-  console.log(res.body);
-
+  
   // create call from ghost participant
-  client.calls
-  .create({
-    url: callbackURL, //TODO currently rickrolls should instead point to listener for button click
-    to: toNumber, //num configured to /joinconference +17172971757
-    from: fromNumber // any verified or twilio number
-  })
-  .then(call => {
-    console.log(call.sid);
-    res.type('text/xml').send(call.sid);
-  }).catch(err => console.log(err))
+  
 });
 
 //make static wav file public to play

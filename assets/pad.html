@@ -7,14 +7,12 @@
             var button = null;
             $('.key').click(function() {
                 button = $(this).attr('data-key');
-                console.log(button);
-                $.post('https://lizzie.ngrok.io/soundparticipant', {"button": button}, function(data) {
-                });
-                let jqxhr = $.post("/soundparticipant", function(data) {
+                console.log(button); //print in console
+                $.post('/soundparticipant', {"button": button}, function(data) {
                     console.log(data)
                 })
-                .done(() => console.log('done'))
-                .fail((err) => console.log(err))
+                // .done(() => console.log('done'))
+                // .fail((err) => console.log(err))
             });
         });
     </script>
