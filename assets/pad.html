@@ -10,6 +10,11 @@
                 console.log(button);
                 $.post('https://lizzie.ngrok.io/soundparticipant', {"button": button}, function(data) {
                 });
+                let jqxhr = $.post("/soundparticipant", function(data) {
+                    console.log(data)
+                })
+                .done(() => console.log('done'))
+                .fail((err) => console.log(err))
             });
         });
     </script>

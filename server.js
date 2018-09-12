@@ -20,11 +20,25 @@ okgobass = 'audio/okgo-demo-bass.wav',
 classic = 'https://demo.twilio.com/docs/classic.mp3',
 okgodrum = 'audio/okgo-demo-drum.wav',
 okgosound1 = 'audio/okgo-demo-sound1.wav';
+const client = require('twilio')(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN)
+const fromNumber = process.env.TWILIO_NUMBER
+const toNumber = process.env.OKGO_CONF_NUMBER
+const callbackURL = process.env.CALLBACK_URL
 
 // configuring middleware
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.raw({ type: 'audio/wav', limit: '50mb' }));
 app.use(express.static('audio/*')) //static 
+
+// don't need jsdom because we can just make a request to our soundparticipant url from the client
+
+app.post('/rickroll', (req, res) => {
+  //twiml play classic
+  let twiml2 = new twilio.twiml.VoiceResponse(); 
+  console.log("rickroll")
+  twiml2.play(classic); //classic url for now, need to work on okgo .wav files
+  res.type('text/xml').send(twiml2.toString());
+});
 
 // configure routes
 //right now: hear welcome message
@@ -69,6 +83,19 @@ app.post('/rickroll', (req, res) => {
   console.log("rickroll");
   twiml2.play(classic); //classic url for now, need to work on okgo .wav files
   res.type('text/xml').send(twiml2.toString());
+  console.log(res.body);
+
+  // create call from ghost participant
+  client.calls
+  .create({
+    url: callbackURL, //TODO currently rickrolls should instead point to listener for button click
+    to: toNumber, //num configured to /joinconference +17172971757
+    from: fromNumber // any verified or twilio number
+  })
+  .then(call => {
+    console.log(call.sid);
+    res.type('text/xml').send(call.sid);
+  }).catch(err => console.log(err))
 });
 
 //make static wav file public to play
@@ -80,7 +107,7 @@ app.post('/audio/okgo-demo-sound1.wav', (req, res) => {
 
 //serve up pad.html
 app.get('/', function(req, res){
-    res.sendFile('assets/pad.html', { root : __dirname});
+  res.sendFile('assets/pad.html', { root : __dirname});
 });
 app.use(express.static('assets')); //display background
 
