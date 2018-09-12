@@ -18,6 +18,7 @@
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.18.3",
+    "cheerio": "^1.0.0-rc.2",
     "dotenv": "^6.0.0",
     "express": "^4.16.3",
     "http": "0.0.0",
@@ -25,6 +26,7 @@
     "jsdom": "^12.0.0",
     "nodemon": "^1.18.4",
     "path": "^0.12.7",
+    "querystring": "^0.2.0",
     "twilio": "^3.19.2",
     "urllib": "^2.29.1"
   }
