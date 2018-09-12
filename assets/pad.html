@@ -8,6 +8,11 @@
             $('#drum-pad span').click(function() {
                 var button = $(this).attr('data-key');
                 console.log(button);
+                let jqxhr = $.post("/soundparticipant", function(data) {
+                    console.log(data)
+                })
+                .done(() => console.log('done'))
+                .fail((err) => console.log(err))
             });
         });
     </script>

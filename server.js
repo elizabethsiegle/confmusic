@@ -18,21 +18,17 @@ let classic = 'https://demo.twilio.com/docs/classic.mp3'
 let okgodrum = 'audio/okgo-demo-drum.wav'
 let okgosound1 = 'audio/okgo-demo-sound1.wav'
 
-const client = require('twilio')(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+const client = require('twilio')(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN)
+const fromNumber = process.env.TWILIO_NUMBER
+const toNumber = process.env.OKGO_CONF_NUMBER
+const callbackURL = process.env.CALLBACK_URL
+
 // configuring middleware
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.raw({ type: 'audio/wav', limit: '50mb' }));
 app.use(express.static('audio/*')) //static 
-//jquery in node
-var jsdom = require('jsdom'),
-  { JSDOM } = jsdom,
-  jsdom_options = {
-  runScripts: "dangerously",
-  resources: "usable"
-};
-const { window } = new JSDOM('assets/pad.html');
-const $ = require('jquery')(window);
-var DOM = new JSDOM('assets/pad.html');
+
+// don't need jsdom because we can just make a request to our soundparticipant url from the client
 
 app.post('/rickroll', (req, res) => {
   //twiml play classic
@@ -59,26 +55,19 @@ app.post('/joinconference', (req, res) => {
 //curl or function to make music on command, do once
 //no one ever calls this number, request happens in background
 app.post('/soundparticipant', (req, res) => {
-  var call = 'lol';
-   $(DOM.window.document).ready(function() {
-    $('#drum-pad span').click(function() {
-      var button = $(this).attr('data-key');
-      if(button == 'bass') {
-        //client starts call to okgoconference, play rickroll over the phone.
-        console.log("bass clicked")
-        call = client.calls
-        .create({
-          url: 'https://lizzie.ngrok.io/rickroll', //point to twiml that rickrolls
-          to: '+17172971757', //num configured to /joinconference +17172971757
-          from: '+15612200834' //'+12066505813', //ghost number, 2nd num, configured to /soundparticipant
-        }) //create 
-        .then(call => {
-          console.log(call.sid);
-          res.type('text/xml').send(call.sid);
-        }).catch(err => console.log(err))
-      }
-    });
-  });
+  console.log(res.body);
+
+  // create call from ghost participant
+  client.calls
+  .create({
+    url: callbackURL, //TODO currently rickrolls should instead point to listener for button click
+    to: toNumber, //num configured to /joinconference +17172971757
+    from: fromNumber // any verified or twilio number
+  })
+  .then(call => {
+    console.log(call.sid);
+    res.type('text/xml').send(call.sid);
+  }).catch(err => console.log(err))
 });
 
 //make static wav file public to play
@@ -90,7 +79,7 @@ app.post('/audio/okgo-demo-sound1.wav', (req, res) => {
 
 //serve up pad.html
 app.get('/', function(req, res){
-    res.sendFile('assets/pad.html', { root : __dirname});
+  res.sendFile('assets/pad.html', { root : __dirname});
 });
 app.use(express.static('assets')); //display background
 
