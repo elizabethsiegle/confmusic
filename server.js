@@ -85,37 +85,10 @@ app.post('/sound2', (req, res) => {
   console.log(twiml2.toString());
   //res.type('audio/wav').send(twiml2.toString());
 });
-//call initiated
 
-// configure routes
-var numCallers = [];
-app.post('/joinconference', (req, res) => {
-  if(req.body.From != fromNumber && !numCallers.includes(req.body.From)) { //fromNumber is the ghost caller, tends to call a lot lmao
-    var caller = req.body.From;
-    numCallers.push(caller); //don't add ghostnumber, only real audience numbers
-    console.log("caller", caller);
-  }
-  console.log("numCallers arr ", numCallers); 
-  var rand = randomIntFromInterval(1,2); //number of conference channels
-  console.log("rand ", rand);
-  let twiml = new twilio.twiml.VoiceResponse;
-
-  console.log(`conf group ${rand}`)
-  
-  let dial = twiml.dial();
-  twiml.say(`Get ready to be amazed by Okay Go. Welcome to conference ${rand}!`); //doesn't say 
-  dial.conference(`okgoconference${rand}`, {
-    startConferenceOnEnter: true //run once
-    // muted: true //yolo
-  });
-  
-  res.type('text/xml').send(twiml.toString());
-})
-
-
-injectAudio (url, sid) => {
+let injectAudio = url = sid => {
   client.calls(sid)
-  .update({method: 'POST', url: 'http://jreyes.ngrok.io/cowbell'})
+  .update({method: 'POST', url: 'http://lizzie.ngrok.io/cowbell'})
   .then(call => console.log(call.to))
   .done()
 }
@@ -138,16 +111,16 @@ const soundDict = [{
   }
 ]
 
-const conferenceLines = ["+17172971757", "+17172971757", "+17172971757"]
+const conferenceLines = ["+17172971757", "+12722073026", "+15866666294"] //diff twilio nums, each conf
 // The function that starts all of the ghost calls
 // and updates the soundDict
-createGhostCallers () => {
+let createGhostCallers = () => {
 
   // iterate through collection, create call and assign sid to each object "sound" key
-  _.each(soundDict, (obj, iterator) => {
+  soundDict.forEach(function(obj, iterator) {
     client.calls
     .create({
-      url: "http://lizzie.ngrok.io/sound2", //TODO currently rickrolls should instead point to listener for button click
+      url: "http://lizzie.ngrok.io/rickroll", //TODO currently rickrolls should instead point to listener for button click
       to: conferenceLines[iterator], //num configured to /joinconference +17172971757
       from: fromNumber // any verified or twilio number
     })
@@ -156,9 +129,37 @@ createGhostCallers () => {
       obj[iterator]['sid'] = call.sid;
       res.type('text/xml').send(call.sid);
     }).catch(err => console.log(err))
-  } 
+  }); 
+  console.log(soundDict)
   
 }
+
+// configure routes
+var numCallers = [];
+app.post('/joinconference', (req, res) => {
+  if(req.body.From != fromNumber && !numCallers.includes(req.body.From)) { //fromNumber is the ghost caller, tends to call a lot lmao
+    var caller = req.body.From;
+    numCallers.push(caller); //don't add ghostnumber, only real audience numbers
+    console.log("caller", caller);
+  }
+  createGhostCallers();
+  console.log("numCallers arr ", numCallers); 
+  var rand = randomIntFromInterval(1,2); //number of conference channels
+  console.log("rand ", rand);
+  let twiml = new twilio.twiml.VoiceResponse;
+
+  console.log(`conf group ${rand}`)
+  
+  let dial = twiml.dial();
+  twiml.say(`Get ready to be amazed by Okay Go. Welcome to conference ${rand}!`); //doesn't say 
+  dial.conference(`okgoconference${rand}`, {
+    startConferenceOnEnter: true //run once
+    // muted: true //yolo
+  });
+  injectAudio();
+  res.type('text/xml').send(twiml.toString());
+})
+
 
 // The route that executes the injectAudio function
 app.post('/soundparticipant', (req, res) => {
@@ -213,7 +214,7 @@ app.post('/soundparticipant', (req, res) => {
     console.log("sound-2 clicked, nodejs");
     client.calls
     .create({
-      url: 'http://lizzie.ngrok.io/sound-2', //TODO currently rickrolls should instead point to listener for button click
+      url: 'http://lizzie.ngrok.io/sound2', //TODO currently rickrolls should instead point to listener for button click
       to: toNumber, //num configured to /joinconference +17172971757
       from: fromNumber // any verified or twilio number
     })
