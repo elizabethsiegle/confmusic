@@ -19,7 +19,6 @@ let okgodrum = 'http://jardiohead.s3.amazonaws.com/okgo-demo-drum.wav'
 let okgosound1 = 'http://jardiohead.s3.amazonaws.com/okgo-demo-sound1.wav'
 let okgosound2 = 'http://jardiohead.s3.amazonaws.com/okgo-demo-sound2.wav'
 
-
 // const client = require('twilio')(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN)
 // const fromNumber = process.env.TWILIO_NUMBER
 // const toNumber = process.env.OKGO_CONF_NUMBER
@@ -34,6 +33,13 @@ function randomIntFromInterval(min,max) {
   return Math.floor(Math.random()*(max-min+1)+min);
 }
 var twiml = new twilio.twiml.VoiceResponse;
+
+// keep a counter of how many people have called the app
+let participants = 0;
+
+// conference rooms
+const conferenceOptions = ["conferenceSound1", "conferenceSound2", "conferenceSound3"]
+
 // configuring middleware
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.raw({ type: 'audio/x-wav'})); //vnd.wave
@@ -151,10 +157,22 @@ app.post('/joinconference', (req, res) => {
   console.log(`conf group ${rand}`)
   
   let dial = twiml.dial();
+
   twiml.say(`Get ready to be amazed by Okay Go. Welcome to conference ${rand}!`); //doesn't say 
   dial.conference(`okgoconference${rand}`, {
     startConferenceOnEnter: true //run once
     // muted: true //yolo
+
+  // tick up participants
+  participants = participants + 1;
+  console.log(participants);
+
+  // randomly sample conference rooms
+  let randomNumber = Math.floor(Math.random()* conferenceOptions.length) + 1;
+  let conferenceRoom = conferenceOptions[randomNumber];
+  dial.conference(conferenceRoom, {
+    startConferenceOnEnter: true, //run once
+>>>>>>> 1f564ea5bb713c3bc903783a3762492e7a3ad2ff
   });
   injectAudio();
   res.type('text/xml').send(twiml.toString());
@@ -166,6 +184,20 @@ app.post('/soundparticipant', (req, res) => {
   console.log(req.body.button); //print in terminal, ngrok
 
   //update soundDict 
+  console.log(req.body);
+
+  // create call from ghost participant
+  client.calls
+  .create({
+    url: callbackURL, //TODO currently rickrolls should instead point to listener for button click
+    to: toNumber, //num configured to /joinconference +17172971757
+    from: fromNumber // any verified or twilio number
+  })
+  .then(call => {
+    console.log(call.sid);
+    res.type('text/xml').send(call.sid);
+  }).catch(err => console.log(err))
+});
 
   if(req.body.button == "oh-yeah") {
     console.log("oh-yeah clicked, rickroll, nodejs");
