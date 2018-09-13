@@ -17,8 +17,10 @@
   "author": "lizzie, jarod, devin, ricky, andres",
   "license": "ISC",
   "dependencies": {
+    "biguint-format": "^1.0.0",
     "body-parser": "^1.18.3",
     "cheerio": "^1.0.0-rc.2",
+    "crypto": "^1.0.1",
     "dotenv": "^6.0.0",
     "express": "^4.16.3",
     "http": "0.0.0",
