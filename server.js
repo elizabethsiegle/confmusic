@@ -12,7 +12,6 @@ var url = require('url');
 const VoiceResponse = require('twilio').twiml.VoiceResponse
 const app = express();
 const twilio = require('twilio');
-let twiml2 = new twilio.twiml.VoiceResponse();
 let okgobass = 'http://jardiohead.s3.amazonaws.com/okgo-demo-bass.wav' 
 let classic = 'https://demo.twilio.com/docs/classic.mp3'
 let cowbell = 'https://api.twilio.com/cowbell.mp3'
@@ -21,20 +20,20 @@ let okgosound1 = 'http://jardiohead.s3.amazonaws.com/okgo-demo-sound1.wav'
 let okgosound2 = 'http://jardiohead.s3.amazonaws.com/okgo-demo-sound2.wav'
 
 
-const client = require('twilio')(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN)
-const fromNumber = process.env.TWILIO_NUMBER
-const toNumber = process.env.OKGO_CONF_NUMBER
-const callbackURL = process.env.CALLBACK_URL
-var crypto = require('crypto'),
-format = require('biguint-format');
+// const client = require('twilio')(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN)
+// const fromNumber = process.env.TWILIO_NUMBER
+// const toNumber = process.env.OKGO_CONF_NUMBER
+// const callbackURL = process.env.CALLBACK_URL
 
-function randomC (qty) {
-  var x= crypto.randomBytes(qty);
-  return format(x, 'dec');
+const client = require('twilio')("ACd7546b9ed2055fe55ee4209bb3043591", "5fbdc4855c2343dbe8a295bb10635871")
+const fromNumber = "+15612200834" 
+const toNumber = "+17172971757"
+const callbackURL = "http://lizzie.ngrok.io/rickroll"
+
+function randomIntFromInterval(min,max) {
+  return Math.floor(Math.random()*(max-min+1)+min);
 }
-function random (low, high) {
-  return randomC(4)/Math.pow(2,4*8-1) * (high - low) + low;
-}
+var twiml = new twilio.twiml.VoiceResponse;
 // configuring middleware
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.raw({ type: 'audio/x-wav'})); //vnd.wave
@@ -89,92 +88,114 @@ app.post('/sound2', (req, res) => {
 //call initiated
 
 // configure routes
-//right now: hear welcome message
 var numCallers = [];
 app.post('/joinconference', (req, res) => {
-  var caller = req.body.From;
-  console.log("caller", caller)
-  if(caller != fromNumber) { //fromNumber is the ghost caller, tends to call a lot lmao
-    numCallers.push(caller);
+  if(req.body.From != fromNumber && !numCallers.includes(req.body.From)) { //fromNumber is the ghost caller, tends to call a lot lmao
+    var caller = req.body.From;
+    numCallers.push(caller); //don't add ghostnumber, only real audience numbers
+    console.log("caller", caller);
   }
   console.log("numCallers arr ", numCallers); 
-  var rand = numCallers[Math.floor(Math.random() * numCallers.length)];
+  var rand = randomIntFromInterval(1,2); //number of conference channels
   console.log("rand ", rand);
-  // var call1 = random(1, 3);
-  // var call2 = random(1, 3);
-  // var call3 = random(1, 3);
+
   var twiml2ret = null;
-  let twiml = new twilio.twiml.VoiceResponse();
-  twiml.say('Get ready to be amazed by Okay Go!');
-  let dial = twiml.dial();
-  if(rand == numCallers[0]) { //1
+  if(rand == 1) { //1
     console.log("conf group 1")
-    twiml.say('Welcome to conference 1!'); //doesn't say 
+    let twiml1 = new twilio.twiml.VoiceResponse;
+    let dial = twiml.dial();
+    twiml1.say('Get ready to be amazed by Okay Go. Welcome to conference 1!'); //doesn't say 
     dial.conference('okgoconference1', {
       startConferenceOnEnter: true //run once
     // muted: true //yolo
     });
-    //twiml2ret = twiml;
+    twiml2ret = twiml1;
   }
-  else if (rand == numCallers[1]) {  //2
-    twiml.say('Welcome to conference 2!'); //doesn't say
+  else if (rand == 2) {  //2
+    let twiml2 = new twilio.twiml.VoiceResponse;
+    let dial2 = twiml.dial();
+    twiml2.say('Get ready to be amazed by Okay Go. Welcome to conference 2!'); //doesn't say
     console.log("conf 2");
-    dial.conference('okconference2', {
+    dial2.conference('okconference2', {
       startConferenceOnEnter: true //run once
       // muted: true //yolo
     });
-    //twiml2ret = twiml2;
+    twiml2ret = twiml2;
   }
-  else if (rand == numCallers[2]) { //(numCallers.length == 3) {
-    console.log("conf 3");
-    twiml.say('Welcome to conference 3!');
-    dial.conference('okconference3', {
-      startConferenceOnEnter: true //run once
-      // muted: true //yolo
-    });
-    //twiml2ret = twiml3;
-  }
-  else if(numCallers.length == 4) {
-    twiml.say('Welcome to the conference 4!');
-    dial.conference('okconference4', {
-      startConferenceOnEnter: true //run once
-      // muted: true //yolo
-    });
-    // twiml2ret = twiml4;
-  }  
-  else if(numCallers.length == 5) {
-    twiml.say('Welcome to the conference 5!');
-    dial.conference('okconference5', {
-      startConferenceOnEnter: true //run once
-      // muted: true //yolo
-    });
-    // twiml2ret = twiml5;
-  }
-  else if(numCallers.length == 6) {
-    twiml.say('Welcome to the conference 6!');
-    dial.conference('okconference6', {
-      startConferenceOnEnter: true //run once
-      // muted: true //yolo
-    });
-    // twiml2ret = twiml6;
-  }
-  else if(numCallers.length == 7) {
-    twiml.say('Welcome to the conference 7!');
-    dial.conference('okconference7', {
-      startConferenceOnEnter: true //run once
-      // muted: true //yolo
-    });
-    // twiml2ret = twiml7;
-  }
-  else if(numCallers.length == 8) {
-    twiml.say('Welcome to the conference 8!');
-    dial.conference('okconference8', {
-      startConferenceOnEnter: true //run once
-      // muted: true //yolo
-    });
-    // twiml2ret = twiml8;
-  }
-  res.type('text/xml').send(twiml.toString());
+  // else if (rand == 3) { //(numCallers.length == 3) {
+  //   console.log("conf 3");
+  //   twiml.say('Welcome to conference 3!');
+  //   dial.conference('okconference3', {
+  //     startConferenceOnEnter: true //run once
+  //     // muted: true //yolo
+  //   });
+  //   //twiml2ret = twiml3;
+  // }
+  // else if(rand == 4) {
+  //   console.log("conf 4");
+  //   twiml.say('Welcome to the conference 4!');
+  //   dial.conference('okconference4', {
+  //     startConferenceOnEnter: true //run once
+  //     // muted: true //yolo
+  //   });
+  //   // twiml2ret = twiml4;
+  // }  
+  // else if(rand == 5) {
+  //   console.log("conf 5");
+  //   twiml.say('Welcome to the conference 5!');
+  //   dial.conference('okconference5', {
+  //     startConferenceOnEnter: true //run once
+  //     // muted: true //yolo
+  //   });
+  //   // twiml2ret = twiml5;
+  // }
+  // else if(rand == 6) {
+  //   console.log("conf 6");
+  //   twiml.say('Welcome to the conference 6!');
+  //   dial.conference('okconference6', {
+  //     startConferenceOnEnter: true //run once
+  //     // muted: true //yolo
+  //   });
+  //   // twiml2ret = twiml6;
+  // }
+  // else if(rand == 7) {
+  //   console.log("conf 7");
+  //   twiml.say('Welcome to the conference 7!');
+  //   dial.conference('okconference7', {
+  //     startConferenceOnEnter: true //run once
+  //     // muted: true //yolo
+  //   });
+  //   // twiml2ret = twiml7;
+  // }
+  // else if(rand == 8) {
+  //   console.log("conf 8");
+  //   twiml.say('Welcome to the conference 8!');
+  //   dial.conference('okconference8', {
+  //     startConferenceOnEnter: true //run once
+  //     // muted: true //yolo
+  //   });
+  //   // twiml2ret = twiml8;
+  // }
+
+  // else if(rand == 9) {
+  //   console.log("conf 9");
+  //   twiml.say('Welcome to the conference 9!');
+  //   dial.conference('okconference9', {
+  //     startConferenceOnEnter: true //run once
+  //     // muted: true //yolo
+  //   });
+  //   // twiml2ret = twiml8;
+  // }
+  // else if(rand == 10) {
+  //   console.log("conf 10");
+  //   twiml.say('Welcome to the conference 10!');
+  //   dial.conference('okconference10', {
+  //     startConferenceOnEnter: true //run once
+  //     // muted: true //yolo
+  //   });
+  //   // twiml2ret = twiml8;
+  // }
+  res.type('text/xml').send(twiml2ret.toString());
 })
 
 //TODO: add if button clicked (in html file), be listener, edit callsid
