@@ -1,4 +1,3 @@
-//call +17172971757 configured with /joinconference , hear a welcome msg, redirect to /soundparticipant, get rickrolled
 'use strict';
 var dotenv = require('dotenv');
 dotenv.load();
@@ -7,221 +6,189 @@ const express = require('express');
 const http = require('http');
 const fs = require('fs')
 const path = require('path');
+const _ = require('underscore');
 var urllib = require('urllib');
 var url = require('url');
-const VoiceResponse = require('twilio').twiml.VoiceResponse
 const app = express();
 const twilio = require('twilio');
-let okgobass = 'http://jardiohead.s3.amazonaws.com/okgo-demo-bass.wav' 
-let classic = 'https://demo.twilio.com/docs/classic.mp3'
-let cowbell = 'https://api.twilio.com/cowbell.mp3'
-let okgodrum = 'http://jardiohead.s3.amazonaws.com/okgo-demo-drum.wav'
-let okgosound1 = 'http://jardiohead.s3.amazonaws.com/okgo-demo-sound1.wav'
-let okgosound2 = 'http://jardiohead.s3.amazonaws.com/okgo-demo-sound2.wav'
+let okgobass = '' 
+let c5 = 'http://jardiohead.s3.amazonaws.com/c5.mp3'
+let b5 = 'http://jardiohead.s3.amazonaws.com/b5.mp3'
+let f5 = 'http://jardiohead.s3.amazonaws.com/f5.mp3'
+let c6 = 'http://jardiohead.s3.amazonaws.com/c6.mp3'
+let d5 = 'http://jardiohead.s3.amazonaws.com/d5.mp3'
 
 
-// const client = require('twilio')(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN)
-// const fromNumber = process.env.TWILIO_NUMBER
-// const toNumber = process.env.OKGO_CONF_NUMBER
-// const callbackURL = process.env.CALLBACK_URL
-
-const client = require('twilio')("ACd7546b9ed2055fe55ee4209bb3043591", "5fbdc4855c2343dbe8a295bb10635871")
-const fromNumber = "+15612200834" 
-const toNumber = "+17172971757"
-const callbackURL = "http://lizzie.ngrok.io/rickroll"
+const client = require('twilio')(process.env.TWILIO_DOITLIVE_SID, process.env.TWILIO_DOITLIVE_AUTH_TOKEN)
+const fromNumber = "+14153635682"
+const toNumber = process.env.OKGO_CONF_NUMBER
+const baseURL = process.env.BASE_URL
 
 function randomIntFromInterval(min,max) {
   return Math.floor(Math.random()*(max-min+1)+min);
 }
-var twiml = new twilio.twiml.VoiceResponse;
 // configuring middleware
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.raw({ type: 'audio/x-wav'})); //vnd.wave
 app.use(bodyParser.json());
 
-// don't need jsdom because we can just make a request to our soundparticipant url from the client
-
-app.post('/rickroll', (req, res) => {
-  //twiml play classic
-  let twiml2 = new twilio.twiml.VoiceResponse(); 
-  console.log("rickroll")
-  twiml2.play(classic); //classic url for now, need to work on okgo .wav files
-  res.type('text/xml').send(twiml2.toString());
+app.post('/sound1', (req, res) => {
+  let twiml = getSoundTwiml("sound1");
+  res.type('text/xml').send(twiml);
 });
 
-app.post('/cowbell', (req, res) => {
-  let twiml2 = new twilio.twiml.VoiceResponse(); 
-  console.log("cowbell")
-  twiml2.play(cowbell); //classic url for now, need to work on okgo .wav files
-  res.type('text/xml').send(twiml2.toString());
+app.post('/sound2', (req, res) => {
+  let twiml = getSoundTwiml("sound2");
+  res.type('text/xml').send(twiml);
 });
 
 app.post('/bass', (req, res) => {
-  let twiml2 = new twilio.twiml.VoiceResponse(); 
-  console.log("bass")
-  twiml2.play(okgobass); //classic url for now, need to work on okgo .wav files
-  res.type('audio/x-wav').send(twiml2.toString()); //vnd.wave
+  let twiml = getSoundTwiml("bass");
+  res.type('text/xml').send(twiml);
 });
 
 app.post('/drum', (req, res) => {
-  let twiml2 = new twilio.twiml.VoiceResponse(); 
-  console.log("drum")
-  twiml2.play(okgodrum); //classic url for now, need to work on okgo .wav files
-  console.log(twiml2.toString());
+  let twiml = getSoundTwiml("sound1");
+  res.type('text/xml').send(twiml);
+});
+
+app.post('/ohyeah', (req, res) => {
+  let twiml = getSoundTwiml("oh-yeah");
+  res.type('text/xml').send(twiml);
+});
+
+app.post('/hold', (req, res) => {
+  let twiml = new twilio.twiml.VoiceResponse(); 
+  twiml.play("http://jardiohead.s3.amazonaws.com/silence-5.mp3");
+  res.type('text/xml').send(twiml.toString());
   //res.type('audio/wav').send(twiml2.toString());
 });
 
-app.post('/sound1', (req, res) => {
-  let twiml2 = new twilio.twiml.VoiceResponse(); 
-  console.log("sound1")
-  twiml2.play(okgosound1); //classic url for now, need to work on okgo .wav files
-  console.log(twiml2.toString());
-  //res.type('audio/wav').send(twiml2.toString());
-});
-app.post('/sound2', (req, res) => {
-  let twiml2 = new twilio.twiml.VoiceResponse(); 
-  console.log("sound2")
-  twiml2.play(okgosound2); //classic url for now, need to work on okgo .wav files
-  console.log(twiml2.toString());
-  //res.type('audio/wav').send(twiml2.toString());
-});
-//call initiated
+
+const soundDict = [{
+    sound: "oh-yeah",
+    file: b5,
+    url: baseURL+"/ohyeah",
+    conference: "okgoconferenceA",
+    sid : "",
+    active: 'false'
+  }, {
+    sound: "bass",
+    file: c5,
+    url: baseURL+"/bass",
+    conference: "okgoconferenceB",
+    sid : "",
+    active: 'false'
+  }, {
+    sound: "drum",
+    file: d5,
+    url: baseURL+"/drum",
+    conference: "okgoconferenceC",
+    sid : "",
+    active: 'false'
+  }, {
+    sound: "sound1",
+    file: c6,
+    url: baseURL+"/sound1",
+    conference: "okgoconferenceD",
+    sid: "",
+    active: 'false'
+  }, {
+    sound: "sound2",
+    file: f5,
+    url: baseURL+"/sound2",
+    conference: "okgoconferenceE",
+    sid: "",
+    active: 'false'
+  }
+]
+
+// creates Twiml for the routes
+let getSoundTwiml = (sound) => {
+  let twiml = new twilio.twiml.VoiceResponse(); 
+  let soundObj = _.findWhere(soundDict, {sound: sound});
+  console.log(`Play the file ${soundObj.file}`)
+  twiml.play(soundObj.file);
+  twiml.redirect(`${baseURL}/hold`);
+  return twiml.toString();
+}
 
 // configure routes
 var numCallers = [];
 app.post('/joinconference', (req, res) => {
+  if (numCallers.length < 1) createGhostCallers();
   if(req.body.From != fromNumber && !numCallers.includes(req.body.From)) { //fromNumber is the ghost caller, tends to call a lot lmao
-    var caller = req.body.From;
+    let caller = req.body.From;
     numCallers.push(caller); //don't add ghostnumber, only real audience numbers
     console.log("caller", caller);
   }
   console.log("numCallers arr ", numCallers); 
-  var rand = randomIntFromInterval(1,2); //number of conference channels
-  console.log("rand ", rand);
-  let twiml = new twilio.twiml.VoiceResponse;
+  
+  let twiml = new twilio.twiml.VoiceResponse();
 
+  let rand = randomIntFromInterval(0,4) //number of conference channels
   console.log(`conf group ${rand}`)
   
+  twiml.say(`Get ready to be amazed by Okay Go. Welcome to conference ${soundDict[rand].conference}!`);
+
   let dial = twiml.dial();
-  twiml.say(`Get ready to be amazed by Okay Go. Welcome to conference ${rand}!`); //doesn't say 
-  dial.conference(`okgoconference${rand}`, {
-    startConferenceOnEnter: true //run once
-    // muted: true //yolo
-  });
+
+  let robot = req.body.From == fromNumber;
+  console.log(`Is this a robot? ${robot}`)
+  // If it's from the fromNumber let's join a specific conference otherwise join a random conference
+  if (req.body.From == fromNumber) {
+    console.log("Looks like we have a bot.");
+    console.log(soundDict);
+    let emptyConference = _.findWhere(soundDict, {active: 'false'});
+    console.log(emptyConference);
+    emptyConference.active = 'true';
+    dial.conference(emptyConference.conference, {
+      startConferenceOnEnter: true //run once
+    })
+  } else {
+    dial.conference(soundDict[rand]['conference'], {
+      startConferenceOnEnter: false //run once
+      // muted: true //yolo
+    });
+  }
   
   res.type('text/xml').send(twiml.toString());
 })
 
 
-injectAudio (url, sid) => {
+let injectAudio = (sid, url) => {
   client.calls(sid)
-  .update({method: 'POST', url: 'http://jreyes.ngrok.io/cowbell'})
+  .update({method: 'POST', url: url})
   .then(call => console.log(call.to))
   .done()
 }
 
-const soundDict = [{
-    sound: "oh-yeah",
-    sid : ""
-  }, {
-    sound: "bass",
-    sid : ""
-  }, {
-    soind: "drum",
-    sid : ""
-  }, {
-    sound: "sound1",
-    sid: ""
-  }, {
-    sound: "sound2",
-    sid: ""
-  }
-]
-
-const conferenceLines = ["+17172971757", "+17172971757", "+17172971757"]
 // The function that starts all of the ghost calls
 // and updates the soundDict
-createGhostCallers () => {
-
+let createGhostCallers = () => {
   // iterate through collection, create call and assign sid to each object "sound" key
-  _.each(soundDict, (obj, iterator) => {
+  _.each(soundDict, (obj, i) => {
+    console.log(obj, i)
     client.calls
     .create({
-      url: "http://lizzie.ngrok.io/sound2", //TODO currently rickrolls should instead point to listener for button click
-      to: conferenceLines[iterator], //num configured to /joinconference +17172971757
+      url: `${baseURL}/hold`, //TODO currently rickrolls should instead point to listener for button click
+      to: toNumber, //num configured to /joinconference +17172971757
       from: fromNumber // any verified or twilio number
     })
     .then(call => {
-      console.log(call.sid);
-      obj[iterator]['sid'] = call.sid;
-      res.type('text/xml').send(call.sid);
+      obj.sid = call.sid;
+      console.log(`updating ${obj.sound} with call sid: ${call.sid}`)
+      console.log(obj)
     }).catch(err => console.log(err))
-  } 
-  
+  })
 }
 
 // The route that executes the injectAudio function
 app.post('/soundparticipant', (req, res) => {
   console.log(req.body.button); //print in terminal, ngrok
-
-  //update soundDict 
-
-  if(req.body.button == "oh-yeah") {
-    console.log("oh-yeah clicked, rickroll, nodejs");
-    
-  } //if "oh-yeah"
-  else if(req.body.button == "bass") {
-    console.log("bass clicked, nodejs");
-    client.calls
-    .create({
-      url: 'http://lizzie.ngrok.io/bass', //TODO currently rickrolls should instead point to listener for button click
-      to: toNumber, //num configured to /joinconference +17172971757
-      from: fromNumber // any verified or twilio number
-    })
-    .then(call => {
-      console.log(call.sid);
-        res.type('text/xml').send(call.sid);
-    }).catch(err => console.log(err))
-  }
-  else if(req.body.button == "drum") {
-    console.log("drum clicked, nodejs");
-    client.calls
-    .create({
-      url: 'http://lizzie.ngrok.io/drum', //TODO currently rickrolls should instead point to listener for button click
-      to: toNumber, //num configured to /joinconference +17172971757
-      from: fromNumber // any verified or twilio number
-    })
-    .then(call => {
-      console.log(call.sid);
-        res.type('text/xml').send(call.sid);
-    }).catch(err => console.log(err))
-  }
-  else if(req.body.button == "sound-1") {
-    console.log("sound-1 clicked, nodejs");
-    client.calls
-    .create({
-      url: 'http://lizzie.ngrok.io/sound1', //TODO currently rickrolls should instead point to listener for button click
-      to: toNumber, //num configured to /joinconference +17172971757
-      from: fromNumber // any verified or twilio number
-    })
-    .then(call => {
-      console.log(call.sid);
-        res.type('text/xml').send(call.sid);
-    }).catch(err => console.log(err))
-  }
-  else if(req.body.button == "sound-2") {
-    console.log("sound-2 clicked, nodejs");
-    client.calls
-    .create({
-      url: 'http://lizzie.ngrok.io/sound-2', //TODO currently rickrolls should instead point to listener for button click
-      to: toNumber, //num configured to /joinconference +17172971757
-      from: fromNumber // any verified or twilio number
-    })
-    .then(call => {
-      console.log(call.sid);
-        res.type('text/xml').send(call.sid);
-    }).catch(err => console.log(err))
-  }
+  let soundObj = _.findWhere(soundDict, {sound: req.body.button});
+  console.log(`Play the file ${soundObj.file}`);
+  injectAudio(soundObj.sid, soundObj.url)
 });
 
 //serve up pad.html
