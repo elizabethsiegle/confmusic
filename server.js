@@ -23,6 +23,12 @@ const fromNumber = process.env.TWILIO_NUMBER
 const toNumber = process.env.OKGO_CONF_NUMBER
 const callbackURL = process.env.CALLBACK_URL
 
+// keep a counter of how many people have called the app
+let participants = 0;
+
+// conference rooms
+const conferenceOptions = ["conferenceSound1", "conferenceSound2", "conferenceSound3"]
+
 // configuring middleware
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.raw({ type: 'audio/wav', limit: '50mb' }));
@@ -44,7 +50,15 @@ app.post('/joinconference', (req, res) => {
   let twiml = new twilio.twiml.VoiceResponse(); 
   twiml.say('Welcome to the conference!');
   let dial = twiml.dial();
-  dial.conference('okgoconference1', {
+
+  // tick up participants
+  participants = participants + 1;
+  console.log(participants);
+
+  // randomly sample conference rooms
+  let randomNumber = Math.floor(Math.random()* conferenceOptions.length) + 1;
+  let conferenceRoom = conferenceOptions[randomNumber];
+  dial.conference(conferenceRoom, {
     startConferenceOnEnter: true, //run once
   });
   res.type('text/xml').send(twiml.toString());
@@ -55,7 +69,7 @@ app.post('/joinconference', (req, res) => {
 //curl or function to make music on command, do once
 //no one ever calls this number, request happens in background
 app.post('/soundparticipant', (req, res) => {
-  console.log(res.body);
+  console.log(req.body);
 
   // create call from ghost participant
   client.calls
