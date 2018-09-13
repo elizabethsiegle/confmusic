@@ -98,124 +98,77 @@ app.post('/joinconference', (req, res) => {
   console.log("numCallers arr ", numCallers); 
   var rand = randomIntFromInterval(1,2); //number of conference channels
   console.log("rand ", rand);
+  let twiml = new twilio.twiml.VoiceResponse;
 
-  var twiml2ret = null;
-  if(rand == 1) { //1
-    console.log("conf group 1")
-    let twiml1 = new twilio.twiml.VoiceResponse;
-    let dial = twiml.dial();
-    twiml1.say('Get ready to be amazed by Okay Go. Welcome to conference 1!'); //doesn't say 
-    dial.conference('okgoconference1', {
-      startConferenceOnEnter: true //run once
+  console.log(`conf group ${rand}`)
+  
+  let dial = twiml.dial();
+  twiml.say(`Get ready to be amazed by Okay Go. Welcome to conference ${rand}!`); //doesn't say 
+  dial.conference(`okgoconference${rand}`, {
+    startConferenceOnEnter: true //run once
     // muted: true //yolo
-    });
-    twiml2ret = twiml1;
-  }
-  else if (rand == 2) {  //2
-    let twiml2 = new twilio.twiml.VoiceResponse;
-    let dial2 = twiml.dial();
-    twiml2.say('Get ready to be amazed by Okay Go. Welcome to conference 2!'); //doesn't say
-    console.log("conf 2");
-    dial2.conference('okconference2', {
-      startConferenceOnEnter: true //run once
-      // muted: true //yolo
-    });
-    twiml2ret = twiml2;
-  }
-  // else if (rand == 3) { //(numCallers.length == 3) {
-  //   console.log("conf 3");
-  //   twiml.say('Welcome to conference 3!');
-  //   dial.conference('okconference3', {
-  //     startConferenceOnEnter: true //run once
-  //     // muted: true //yolo
-  //   });
-  //   //twiml2ret = twiml3;
-  // }
-  // else if(rand == 4) {
-  //   console.log("conf 4");
-  //   twiml.say('Welcome to the conference 4!');
-  //   dial.conference('okconference4', {
-  //     startConferenceOnEnter: true //run once
-  //     // muted: true //yolo
-  //   });
-  //   // twiml2ret = twiml4;
-  // }  
-  // else if(rand == 5) {
-  //   console.log("conf 5");
-  //   twiml.say('Welcome to the conference 5!');
-  //   dial.conference('okconference5', {
-  //     startConferenceOnEnter: true //run once
-  //     // muted: true //yolo
-  //   });
-  //   // twiml2ret = twiml5;
-  // }
-  // else if(rand == 6) {
-  //   console.log("conf 6");
-  //   twiml.say('Welcome to the conference 6!');
-  //   dial.conference('okconference6', {
-  //     startConferenceOnEnter: true //run once
-  //     // muted: true //yolo
-  //   });
-  //   // twiml2ret = twiml6;
-  // }
-  // else if(rand == 7) {
-  //   console.log("conf 7");
-  //   twiml.say('Welcome to the conference 7!');
-  //   dial.conference('okconference7', {
-  //     startConferenceOnEnter: true //run once
-  //     // muted: true //yolo
-  //   });
-  //   // twiml2ret = twiml7;
-  // }
-  // else if(rand == 8) {
-  //   console.log("conf 8");
-  //   twiml.say('Welcome to the conference 8!');
-  //   dial.conference('okconference8', {
-  //     startConferenceOnEnter: true //run once
-  //     // muted: true //yolo
-  //   });
-  //   // twiml2ret = twiml8;
-  // }
-
-  // else if(rand == 9) {
-  //   console.log("conf 9");
-  //   twiml.say('Welcome to the conference 9!');
-  //   dial.conference('okconference9', {
-  //     startConferenceOnEnter: true //run once
-  //     // muted: true //yolo
-  //   });
-  //   // twiml2ret = twiml8;
-  // }
-  // else if(rand == 10) {
-  //   console.log("conf 10");
-  //   twiml.say('Welcome to the conference 10!');
-  //   dial.conference('okconference10', {
-  //     startConferenceOnEnter: true //run once
-  //     // muted: true //yolo
-  //   });
-  //   // twiml2ret = twiml8;
-  // }
-  res.type('text/xml').send(twiml2ret.toString());
+  });
+  
+  res.type('text/xml').send(twiml.toString());
 })
 
-//TODO: add if button clicked (in html file), be listener, edit callsid
-// RIGHT NOW: attendees call in to +17172971757, configured with /soundparticipant 
-//curl or function to make music on command, do once
-//no one ever calls this number, request happens in background
-app.post('/soundparticipant', (req, res) => {
-  console.log(req.body.button); //print in terminal, ngrok
-  if(req.body.button == "oh-yeah") {
-    console.log("oh-yeah clicked, rickroll, nodejs");
+
+injectAudio (url, sid) => {
+  client.calls(sid)
+  .update({method: 'POST', url: 'http://jreyes.ngrok.io/cowbell'})
+  .then(call => console.log(call.to))
+  .done()
+}
+
+const soundDict = [{
+    sound: "oh-yeah",
+    sid : ""
+  }, {
+    sound: "bass",
+    sid : ""
+  }, {
+    soind: "drum",
+    sid : ""
+  }, {
+    sound: "sound1",
+    sid: ""
+  }, {
+    sound: "sound2",
+    sid: ""
+  }
+]
+
+const conferenceLines = ["+17172971757", "+17172971757", "+17172971757"]
+// The function that starts all of the ghost calls
+// and updates the soundDict
+createGhostCallers () => {
+
+  // iterate through collection, create call and assign sid to each object "sound" key
+  _.each(soundDict, (obj, iterator) => {
     client.calls
     .create({
-      url: callbackURL, //TODO currently rickrolls should instead point to listener for button click
-      to: toNumber, //num configured to /joinconference +17172971757
+      url: "http://lizzie.ngrok.io/sound2", //TODO currently rickrolls should instead point to listener for button click
+      to: conferenceLines[iterator], //num configured to /joinconference +17172971757
       from: fromNumber // any verified or twilio number
     })
     .then(call => {
       console.log(call.sid);
-        res.type('text/xml').send(call.sid);
+      obj[iterator]['sid'] = call.sid;
+      res.type('text/xml').send(call.sid);
     }).catch(err => console.log(err))
+  } 
+  
+}
+
+// The route that executes the injectAudio function
+app.post('/soundparticipant', (req, res) => {
+  console.log(req.body.button); //print in terminal, ngrok
+
+  //update soundDict 
+
+  if(req.body.button == "oh-yeah") {
+    console.log("oh-yeah clicked, rickroll, nodejs");
+    
   } //if "oh-yeah"
   else if(req.body.button == "bass") {
     console.log("bass clicked, nodejs");
