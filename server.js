@@ -19,10 +19,10 @@ let c6 = 'http://jardiohead.s3.amazonaws.com/c6.mp3'
 let d5 = 'http://jardiohead.s3.amazonaws.com/d5.mp3'
 
 
-const client = require('twilio')(process.env.TWILIO_DOITLIVE_SID, process.env.TWILIO_DOITLIVE_AUTH_TOKEN)
-const fromNumber = "+14153635682"
-const toNumber = process.env.OKGO_CONF_NUMBER
-const baseURL = process.env.BASE_URL
+const client = require('twilio')(process.env.TWILIO_DOITLIVE_SID, process.env.TWILIO_DOITLIVE_AUTH_TOKEN);
+const fromNumber = "+14153635682";
+const toNumber = process.env.OKGO_CONF_NUMBER;
+const baseURL = process.env.BASE_URL;
 
 function randomIntFromInterval(min,max) {
   return Math.floor(Math.random()*(max-min+1)+min);
@@ -72,7 +72,8 @@ const soundDict = [{
     conference: "okgo-conference-A",
     sid : "",
     active: 'false',
-    num: 0 //init
+    num: 0, //should be same as members.length
+    members: [] //init
   }, {
     sound: "bass",
     file: c5,
@@ -80,7 +81,8 @@ const soundDict = [{
     conference: "okgo-conference-B",
     sid : "",
     active: 'false',
-    num: 0 //init
+    num: 0, //should be same as members.length
+    members: [] //init
   }, {
     sound: "drum",
     file: d5,
@@ -88,7 +90,8 @@ const soundDict = [{
     conference: "okgo-conference-C",
     sid : "",
     active: 'false',
-    num: 0 //init
+    num: 0, //should be same as members.length
+    members: [] //init
   }, {
     sound: "sound1",
     file: c6,
@@ -96,7 +99,8 @@ const soundDict = [{
     conference: "okgo-conference-D",
     sid: "",
     active: 'false',
-    num: 0 //init
+    num: 0, //should be same as members.length
+    members: [] //init
   }, {
     sound: "sound2",
     file: f5,
@@ -104,7 +108,8 @@ const soundDict = [{
     conference: "okgo-conference-E",
     sid: "",
     active: 'false',
-    num: 0 //init
+    num: 0, //should be same as members.length
+    members: [] //init
   }, { 
     sound: "oh-yeah-2",
     file: b5,
@@ -112,7 +117,8 @@ const soundDict = [{
     conference: "okgo-conference-F",
     sid : "",
     active: 'false',
-    num: 0 //init
+    num: 0, //should be same as members.length
+    members: [] //init
   }, {
     sound: "bass-2",
     file: c5,
@@ -120,7 +126,8 @@ const soundDict = [{
     conference: "okgo-conference-G",
     sid : "",
     active: 'false',
-    num: 0 //init
+    num: 0, //should be same as members.length
+    members: [] //init
   }, {
     sound: "drum-2",
     file: d5,
@@ -128,7 +135,8 @@ const soundDict = [{
     conference: "okgo-conference-H",
     sid : "",
     active: 'false',
-    num: 0 //init
+    num: 0, //should be same as members.length
+    members: [] //init
   }, {
     sound: "sound1-2",
     file: c6,
@@ -136,7 +144,8 @@ const soundDict = [{
     conference: "okgo-conference-I",
     sid: "",
     active: 'false',
-    num: 0 //init
+    num: 0, //should be same as members.length
+    members: [] //init
   }, {
     sound: "sound2-2",
     file: f5,
@@ -144,7 +153,8 @@ const soundDict = [{
     conference: "okgo-conference-J",
     sid: "",
     active: 'false',
-    num: 0 //init
+    num: 0, //should be same as members.length
+    members: [] //init
   }
 ]
 
@@ -165,48 +175,45 @@ let loadBalance = () => {
 // configure routes
 var numCallersArr = [];
 app.post('/joinconference', (req, res) => {
-  if (numCallersArr.length < 1) createGhostCallers();
-  if(req.body.From != fromNumber && !numCallersArr.includes(req.body.From)) { //fromNumber is the ghost caller, tends to call a lot lmao
-    let caller = req.body.From;
-    numCallersArr.push(caller); //don't add ghostnumber, only real audience numbers
-    console.log("caller", caller);
-  }
-  // console.log("numCallers arr ", numCallersArr); 
+  if (numCallersArr.length < 1) createGhostCallers(); 
   
   let twiml = new twilio.twiml.VoiceResponse();
   var maxArr = []; //array of number of people
   //loop through soundDict to check number of people in conference calls
   let rand = 0; //init
   _.each(soundDict, (obj, i) => {
-    if(obj.num != 2) {
+    if(obj.num != 5) { //change this line to change which elements added to maxArr, considered in rand()
       maxArr.push(obj.num); 
-      console.log("rand in if ", rand);
-      rand = randomIntFromInterval(0,9); //number of conference channels
+      rand = randomIntFromInterval(0,9); //10: number of conference channels
     } //if
     else {
-      if(obj.num !== -1) maxArr.splice(obj.num, 1);
-      rand = maxArr[Math.floor(Math.random()*maxArr.length)];
-      console.log("rand in else ", rand);
-      console.log("conf ", soundDict[rand]['conference'].num); //conference room
+      if(obj.num !== -1) maxArr.splice(obj.num, 1); //remove from maxArr
+      rand = maxArr[Math.floor(Math.random()*maxArr.length)]; //rand from maxArr
     } //else
   }); //_each
   
   console.log(`conf group ${rand}`)
   soundDict[rand].num += 1; //another person added to conference
-  console.log("num in conf ", soundDict[rand].num);
+  //console.log("num in conf ", soundDict[rand].num);
   twiml.say(`Get ready to be amazed by Okay Go. Welcome to conference ${soundDict[rand].conference}!`);
-
+  if(req.body.From != fromNumber && !numCallersArr.includes(req.body.From)) { //fromNumber is the ghost caller, tends to call a lot lmao
+    let caller = req.body.From;
+    numCallersArr.push(caller);
+    soundDict[rand].members.push(caller); //don't add ghostnumber, only real audience numbers
+    //console.log("caller", caller);
+  }
+  //console.log("numCallers arr ", numCallersArr);
   let dial = twiml.dial();
 
   let robot = req.body.From == fromNumber;
   console.log(`Is this a robot? ${robot}`)
   // If it's from the fromNumber let's join a specific conference otherwise join a random conference
-  if (req.body.From == fromNumber) {
+  if (req.body.From == robot) { //robot used to be fromNumber and would return a 500 error after a while of running. robot returned 1 500 error
     console.log("Looks like we have a bot.");
     console.log(soundDict);
     let emptyConference = _.findWhere(soundDict, {active: 'false'});
-    console.log(emptyConference);
-    emptyConference.active = 'true';
+    console.log(emptyConference); //returned undefined?
+    emptyConference.active = 'true'; //used to/sometimes error: can't set property 'active' of undefined
     dial.conference(emptyConference.conference, {
       startConferenceOnEnter: true //run once
     })
@@ -216,6 +223,7 @@ app.post('/joinconference', (req, res) => {
       startConferenceOnEnter: false //run once
       // muted: true //yolo
     });
+    console.log("conf ", soundDict[rand].conference); //conference room
   }
   
   res.type('text/xml').send(twiml.toString());
@@ -234,7 +242,6 @@ let injectAudio = (sid, url) => {
 let createGhostCallers = () => {
   // iterate through collection, create call and assign sid to each object "sound" key
   _.each(soundDict, (obj, i) => {
-    console.log("obj, i ", obj, i)
     client.calls
     .create({
       url: `${baseURL}/hold`, //TODO currently rickrolls should instead point to listener for button click
