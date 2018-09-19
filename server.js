@@ -9,6 +9,7 @@ const path = require('path');
 const _ = require('underscore');
 var urllib = require('urllib');
 var url = require('url');
+var weightedRandom = require('weighted-random');
 const app = express();
 const twilio = require('twilio');
 let okgobass = '' 
@@ -73,7 +74,9 @@ const soundDict = [{
     sid : "",
     active: 'false',
     num: 0, //should be same as members.length
-    members: [] //init
+    members: [], //init
+    weight: 10,
+    confNum: 0
   }, {
     sound: "bass",
     file: c5,
@@ -82,7 +85,9 @@ const soundDict = [{
     sid : "",
     active: 'false',
     num: 0, //should be same as members.length
-    members: [] //init
+    members: [], //init
+    weight: 10,
+    confNum: 1
   }, {
     sound: "drum",
     file: d5,
@@ -91,7 +96,9 @@ const soundDict = [{
     sid : "",
     active: 'false',
     num: 0, //should be same as members.length
-    members: [] //init
+    members: [], //init
+    weight: 10,
+    confNum: 2
   }, {
     sound: "sound1",
     file: c6,
@@ -100,7 +107,9 @@ const soundDict = [{
     sid: "",
     active: 'false',
     num: 0, //should be same as members.length
-    members: [] //init
+    members: [], //init
+    weight: 10,
+    confNum: 3
   }, {
     sound: "sound2",
     file: f5,
@@ -109,7 +118,9 @@ const soundDict = [{
     sid: "",
     active: 'false',
     num: 0, //should be same as members.length
-    members: [] //init
+    members: [], //init
+    weight: 10,
+    confNum: 4
   }, { 
     sound: "oh-yeah-2",
     file: b5,
@@ -118,7 +129,9 @@ const soundDict = [{
     sid : "",
     active: 'false',
     num: 0, //should be same as members.length
-    members: [] //init
+    members: [], //init
+    weight: 10,
+    confNum: 5
   }, {
     sound: "bass-2",
     file: c5,
@@ -127,7 +140,9 @@ const soundDict = [{
     sid : "",
     active: 'false',
     num: 0, //should be same as members.length
-    members: [] //init
+    members: [], //init
+    weight: 10,
+    confNum: 6
   }, {
     sound: "drum-2",
     file: d5,
@@ -136,7 +151,9 @@ const soundDict = [{
     sid : "",
     active: 'false',
     num: 0, //should be same as members.length
-    members: [] //init
+    members: [], //init
+    weight: 10,
+    confNum: 7
   }, {
     sound: "sound1-2",
     file: c6,
@@ -145,7 +162,9 @@ const soundDict = [{
     sid: "",
     active: 'false',
     num: 0, //should be same as members.length
-    members: [] //init
+    members: [], //init
+    weight: 10,
+    confNum: 8
   }, {
     sound: "sound2-2",
     file: f5,
@@ -154,7 +173,9 @@ const soundDict = [{
     sid: "",
     active: 'false',
     num: 0, //should be same as members.length
-    members: [] //init
+    members: [], //init
+    weight: 10,
+    confNum: 9
   }
 ]
 
@@ -171,6 +192,34 @@ let getSoundTwiml = (sound) => {
 let loadBalance = () => {
   
 }
+let median = values => {
+    values.sort(function(a,b) {
+      return a-b;
+  });
+
+  if(values.length ===0) return 0
+
+  var half = Math.floor(values.length / 2);
+
+  if (values.length % 2)
+    return values[half];
+  else
+    return (values[half - 1] + values[half]) / 2.0;
+}
+let findMode = arr => {
+  var numMapping = {};
+  var greatestFreq = 0;
+  var mode;
+  arr.forEach(function findMode(number) {
+    numMapping[number] = (numMapping[number] || 0) + 1;
+
+    if (greatestFreq < numMapping[number]) {
+      greatestFreq = numMapping[number];
+      mode = number;
+    }
+  });
+  return +mode;
+}
 
 // configure routes
 var numCallersArr = [];
@@ -182,15 +231,37 @@ app.post('/joinconference', (req, res) => {
   //loop through soundDict to check number of people in conference calls
   let rand = 0; //init
   _.each(soundDict, (obj, i) => {
-    if(obj.num != 5) { //change this line to change which elements added to maxArr, considered in rand()
-      maxArr.push(obj.num); 
-      rand = randomIntFromInterval(0,9); //10: number of conference channels
-    } //if
-    else {
-      if(obj.num !== -1) maxArr.splice(obj.num, 1); //remove from maxArr
-      rand = maxArr[Math.floor(Math.random()*maxArr.length)]; //rand from maxArr
-    } //else
+    maxArr[i] = obj.num;
+    maxArr.forEach(function (el) {
+      if(el == i) {
+        maxArr[el] = i;
+      }
+      maxArr[el] = 0;
+    });
+    console.log("here maxArr ", maxArr);
+    if(obj.num !== -1) maxArr.splice(obj.num, 1); //remove from maxArr
+    var min = Math.min.apply(Math, maxArr),
+    max = Math.max.apply(Math, maxArr),
+    med = median(maxArr),
+    mode = findMode(maxArr);
+    console.log("min, max, med, mode ", min, max, med, mode);
+    console.log("obj.num ", obj.num);
+    console.log("maxArr ", maxArr);
+    if(obj.num == min) {
+      obj.weight = 20;
+    } 
+    else if(obj.num == max) {
+      obj.weight = 2;
+    }
+    else if(obj.num == med) {
+      obj.weight = 8;
+    }
+    obj.weight = 10;
   }); //_each
+  var weights = soundDict.map(function(conf) {
+    return conf.weight;
+  });
+  rand = weightedRandom(weights);
   
   console.log(`conf group ${rand}`)
   soundDict[rand].num += 1; //another person added to conference
@@ -198,9 +269,10 @@ app.post('/joinconference', (req, res) => {
   twiml.say(`Get ready to be amazed by Okay Go. Welcome to conference ${soundDict[rand].conference}!`);
   if(req.body.From != fromNumber && !numCallersArr.includes(req.body.From)) { //fromNumber is the ghost caller, tends to call a lot lmao
     let caller = req.body.From;
-    numCallersArr.push(caller);
+    numCallersArr.push(caller); //total callers
     soundDict[rand].members.push(caller); //don't add ghostnumber, only real audience numbers
-    //console.log("caller", caller);
+    console.log("caller", caller);
+    console.log("soundDict[rand].members ", soundDict[rand].members);
   }
   //console.log("numCallers arr ", numCallersArr);
   let dial = twiml.dial();
@@ -217,7 +289,8 @@ app.post('/joinconference', (req, res) => {
     dial.conference(emptyConference.conference, {
       startConferenceOnEnter: true //run once
     })
-  } else {
+  } 
+  else {
     //loadBalance();
     dial.conference(soundDict[rand]['conference'], {
       startConferenceOnEnter: false //run once
