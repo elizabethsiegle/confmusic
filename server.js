@@ -66,7 +66,7 @@ app.post('/hold', (req, res) => {
 
 
 const soundDict = [{
-    sound: "oh-yeah",
+    sound: "b4",
     file: b5,
     url: baseURL+"/ohyeah",
     conference: "okgo-conference-A",
@@ -74,7 +74,7 @@ const soundDict = [{
     active: 'false',
     num: 0 //init
   }, {
-    sound: "bass",
+    sound: "c4",
     file: c5,
     url: baseURL+"/bass",
     conference: "okgo-conference-B",
@@ -82,7 +82,7 @@ const soundDict = [{
     active: 'false',
     num: 0 //init
   }, {
-    sound: "drum",
+    sound: "d4",
     file: d5,
     url: baseURL+"/drum",
     conference: "okgo-conference-C",
@@ -90,7 +90,7 @@ const soundDict = [{
     active: 'false',
     num: 0 //init
   }, {
-    sound: "sound1",
+    sound: "e4",
     file: c6,
     url: baseURL+"/sound1",
     conference: "okgo-conference-D",
@@ -98,7 +98,7 @@ const soundDict = [{
     active: 'false',
     num: 0 //init
   }, {
-    sound: "sound2",
+    sound: "f4",
     file: f5,
     url: baseURL+"/sound2",
     conference: "okgo-conference-E",
@@ -106,7 +106,7 @@ const soundDict = [{
     active: 'false',
     num: 0 //init
   }, { 
-    sound: "oh-yeah-2",
+    sound: "g4",
     file: b5,
     url: baseURL+"/ohyeah",
     conference: "okgo-conference-F",
@@ -114,7 +114,7 @@ const soundDict = [{
     active: 'false',
     num: 0 //init
   }, {
-    sound: "bass-2",
+    sound: "a5",
     file: c5,
     url: baseURL+"/bass",
     conference: "okgo-conference-G",
@@ -122,7 +122,7 @@ const soundDict = [{
     active: 'false',
     num: 0 //init
   }, {
-    sound: "drum-2",
+    sound: "b5",
     file: d5,
     url: baseURL+"/drum",
     conference: "okgo-conference-H",
@@ -130,7 +130,7 @@ const soundDict = [{
     active: 'false',
     num: 0 //init
   }, {
-    sound: "sound1-2",
+    sound: "c5",
     file: c6,
     url: baseURL+"/sound1",
     conference: "okgo-conference-I",
@@ -138,7 +138,7 @@ const soundDict = [{
     active: 'false',
     num: 0 //init
   }, {
-    sound: "sound2-2",
+    sound: "d5",
     file: f5,
     url: baseURL+"/sound2",
     conference: "okgo-conference-J",
@@ -203,9 +203,9 @@ app.post('/joinconference', (req, res) => {
   // If it's from the fromNumber let's join a specific conference otherwise join a random conference
   if (req.body.From == fromNumber) {
     console.log("Looks like we have a bot.");
-    console.log(soundDict);
+    // console.log(soundDict);
     let emptyConference = _.findWhere(soundDict, {active: 'false'});
-    console.log(emptyConference);
+    console.log(`/////////////////////////////// CALLER JOINED -------------------------->> ${emptyConference.conference} ${emptyConference.sound}.`);
     emptyConference.active = 'true';
     dial.conference(emptyConference.conference, {
       startConferenceOnEnter: true //run once
@@ -222,10 +222,11 @@ app.post('/joinconference', (req, res) => {
 });
 
 
-let injectAudio = (sid, url) => {
+let injectAudio = (sid, url, func) => {
   client.calls(sid)
   .update({method: 'POST', url: url})
   .then(call => console.log(call.to))
+  .catch(err => console.log(err))
   .done()
 }
 
@@ -234,7 +235,7 @@ let injectAudio = (sid, url) => {
 let createGhostCallers = () => {
   // iterate through collection, create call and assign sid to each object "sound" key
   _.each(soundDict, (obj, i) => {
-    console.log("obj, i ", obj, i)
+    // console.log("obj, i ", obj, i)
     client.calls
     .create({
       url: `${baseURL}/hold`, //TODO currently rickrolls should instead point to listener for button click
@@ -244,7 +245,7 @@ let createGhostCallers = () => {
     .then(call => {
       obj.sid = call.sid;
       console.log(`updating ${obj.sound} with call sid: ${call.sid}`)
-      console.log("obj ", obj)
+      // console.log("obj ", obj)
     }).catch(err => console.log(err))
   })
 }
@@ -252,14 +253,19 @@ let createGhostCallers = () => {
 // The route that executes the injectAudio function
 app.post('/soundparticipant', (req, res) => {
   // console.log("button clicked", req.body.button); //print in terminal, ngrok
-  let soundObj = _.findWhere(soundDict, {sound: req.body.button});
+  let soundObj = _.findWhere(soundDict, {sound: req.body.note});
   console.log(`Play the file ${soundObj.file}`);
-  injectAudio(soundObj.sid, soundObj.url)
+  injectAudio(soundObj.sid, soundObj.url, function() {
+    res.status(200).send('completed request')
+  });
 });
 
 //serve up pad.html
 app.get('/', function(req, res){
   res.sendFile('assets/pad.html', { root : __dirname});
+});
+app.get('/wand', function(req, res){
+  res.sendFile('assets/wand.html', { root : __dirname});
 });
 app.use(express.static('assets')); //display background
 
