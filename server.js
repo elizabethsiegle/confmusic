@@ -289,8 +289,7 @@ app.post('/joinconference', (req, res) => {
     dial.conference(emptyConference.conference, {
       startConferenceOnEnter: true //run once
     })
-  } 
-  else {
+  } else {
     //loadBalance();
     dial.conference(soundDict[rand]['conference'], {
       startConferenceOnEnter: false //run once
