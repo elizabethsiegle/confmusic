@@ -10,15 +10,13 @@ const _ = require('underscore');
 var urllib = require('urllib');
 var url = require('url');
 var weightedRandom = require('weighted-random');
+const urllib = require('urllib');
+const url = require('url');
 const app = express();
 const twilio = require('twilio');
-let okgobass = '' 
-let c5 = 'http://jardiohead.s3.amazonaws.com/c5.mp3'
-let b5 = 'http://jardiohead.s3.amazonaws.com/b5.mp3'
-let f5 = 'http://jardiohead.s3.amazonaws.com/f5.mp3'
-let c6 = 'http://jardiohead.s3.amazonaws.com/c6.mp3'
-let d5 = 'http://jardiohead.s3.amazonaws.com/d5.mp3'
+const soundRouter = require('./routers/sound-router')
 
+const soundDict = require('./sound-dict.js')
 
 const client = require('twilio')(process.env.TWILIO_DOITLIVE_SID, process.env.TWILIO_DOITLIVE_AUTH_TOKEN);
 const fromNumber = "+14153635682";
@@ -188,6 +186,8 @@ let getSoundTwiml = (sound) => {
   twiml.redirect(`${baseURL}/hold`);
   return twiml.toString();
 }
+=======
+>>>>>>> 712cb4eb864bca521d037066ab0447aa16d797d1
 
 let loadBalance = () => {
   
@@ -223,13 +223,15 @@ let findMode = arr => {
 
 // configure routes
 var numCallersArr = [];
-app.post('/joinconference', (req, res) => {
-  if (numCallersArr.length < 1) createGhostCallers(); 
-  
+
+app.post('/joinconference', (req, res) => {  
   let twiml = new twilio.twiml.VoiceResponse();
   var maxArr = []; //array of number of people
-  //loop through soundDict to check number of people in conference calls
+
   let rand = 0; //init
+  let maxLines = soundDict.length - 1;
+  rand = randomIntFromInterval(0,maxLines);
+  console.log(`Max Lines allowed: ${maxLines}`)
   _.each(soundDict, (obj, i) => {
     maxArr[i] = obj.num;
     maxArr.forEach(function (el) {
@@ -262,8 +264,16 @@ app.post('/joinconference', (req, res) => {
     return conf.weight;
   });
   rand = weightedRandom(weights);
+    if(obj.num != 5) { //change this line to change which elements added to maxArr, considered in rand()
+      maxArr.push(obj.num); 
+      rand = randomIntFromInterval(0,maxLines);
+    } else {
+      if(obj.num !== -1) maxArr.splice(obj.num, 1); //remove from maxArr
+      rand = maxArr[Math.floor(Math.random()*maxArr.length)]; //rand from maxArr
+      console.log("RAND = "+rand)
+    }
+  });
   
-  console.log(`conf group ${rand}`)
   soundDict[rand].num += 1; //another person added to conference
   //console.log("num in conf ", soundDict[rand].num);
   twiml.say(`Get ready to be amazed by Okay Go. Welcome to conference ${soundDict[rand].conference}!`);
@@ -274,79 +284,107 @@ app.post('/joinconference', (req, res) => {
     console.log("caller", caller);
     console.log("soundDict[rand].members ", soundDict[rand].members);
   }
-  //console.log("numCallers arr ", numCallersArr);
   let dial = twiml.dial();
 
-  let robot = req.body.From == fromNumber;
-  console.log(`Is this a robot? ${robot}`)
-  // If it's from the fromNumber let's join a specific conference otherwise join a random conference
-  if (req.body.From == robot) { //robot used to be fromNumber and would return a 500 error after a while of running. robot returned 1 500 error
-    console.log("Looks like we have a bot.");
-    console.log(soundDict);
-    let emptyConference = _.findWhere(soundDict, {active: 'false'});
-    console.log(emptyConference); //returned undefined?
-    emptyConference.active = 'true'; //used to/sometimes error: can't set property 'active' of undefined
-    dial.conference(emptyConference.conference, {
-      startConferenceOnEnter: true //run once
-    })
-  } else {
-    //loadBalance();
-    dial.conference(soundDict[rand]['conference'], {
-      startConferenceOnEnter: false //run once
-      // muted: true //yolo
-    });
-    console.log("conf ", soundDict[rand].conference); //conference room
-  }
+  //loadBalance();
+  console.log(`/////////////////////////////// CALLER JOINED -------------------------->> ${soundDict[rand]['conference']}.`);
+  dial.conference(soundDict[rand]['conference'], {
+    startConferenceOnEnter: true //run once
+    // muted: true //yolo
+  });
   
   res.type('text/xml').send(twiml.toString());
 });
 
 
-let injectAudio = (sid, url) => {
+let injectAudio = (sid, url, func) => {
   client.calls(sid)
   .update({method: 'POST', url: url})
   .then(call => console.log(call.to))
-  .done()
+  .catch(err => console.log(err))
+  .done(func())
 }
 
-// The function that starts all of the ghost calls
-// and updates the soundDict
+let endCalls = () => {
+  _.each(soundDict, (obj, i) => {
+    console.log("ending Ghost Caller i "+i)
+    client.calls(obj.sid)
+      .update({status: 'completed'})
+      .then(call => console.log(call.status))
+      .catch(err => console.log(err))
+      .done();
+  })
+}
+
 let createGhostCallers = () => {
   // iterate through collection, create call and assign sid to each object "sound" key
   _.each(soundDict, (obj, i) => {
+    console.log("creating Ghost Caller i "+i)
     client.calls
     .create({
+      record: true,
       url: `${baseURL}/hold`, //TODO currently rickrolls should instead point to listener for button click
-      to: toNumber, //num configured to /joinconference +17172971757
+      to: obj.phoneNumber, //num configured to /joinconference +17172971757
       from: fromNumber // any verified or twilio number
     })
     .then(call => {
       obj.sid = call.sid;
-      console.log(`updating ${obj.sound} with call sid: ${call.sid}`)
-      console.log("obj ", obj)
+      console.log(`updating ${obj.conference} with call sid: ${call.sid}`)
+      console.log(`Call status: ${call.status}`)
+      // console.log("obj ", obj)
     }).catch(err => console.log(err))
   })
 }
 
 // The route that executes the injectAudio function
 app.post('/soundparticipant', (req, res) => {
-  // console.log("button clicked", req.body.button); //print in terminal, ngrok
-  let soundObj = _.findWhere(soundDict, {sound: req.body.button});
-  console.log(`Play the file ${soundObj.file}`);
-  injectAudio(soundObj.sid, soundObj.url)
+  let note = req.body.note;
+  let soundObj = _.find(soundDict, (channel) => {
+    return _.contains(channel.notes, note)
+  });
+  injectAudio(soundObj.sid, `${baseURL}/playnote?note=${note}`, function() {
+    res.status(200).send('completed request')
+  });
 });
+
 
 //serve up pad.html
 app.get('/', function(req, res){
+  createGhostCallers()
   res.sendFile('assets/pad.html', { root : __dirname});
+}).get('/wand', function(req, res){
+  res.sendFile('assets/wand.html', { root : __dirname});
+}).get('/client', function(req, res){
+  res.sendFile('assets/client-test.html', { root : __dirname});
 });
 app.use(express.static('assets')); //display background
+app.use(soundRouter);
 
-//latency of updating live-call?
-//unmuting ghost caller?
-//update call with sid
-//each conf call = button
-//effects, volume = connect inputs to right asset
+
+
+
+// Cleanup
+process.stdin.resume();//so the program will not close instantly
+
+function exitHandler(options, exitCode) {
+    endCalls();
+    if (options.cleanup) console.log('clean');
+    if (exitCode || exitCode === 0) console.log(exitCode);
+    if (options.exit) process.exit();
+}
+
+//do something when app is closing
+process.on('exit', exitHandler.bind(null,{cleanup:true}));
+
+//catches ctrl+c event
+process.on('SIGINT', exitHandler.bind(null, {exit:true}));
+
+// catches "kill pid" (for example: nodemon restart)
+process.on('SIGUSR1', exitHandler.bind(null, {exit:true}));
+process.on('SIGUSR2', exitHandler.bind(null, {exit:true}));
+
+//catches uncaught exceptions
+process.on('uncaughtException', exitHandler.bind(null, {exit:true}));
 
 // start server
 app.listen(3000, () => console.log('started server'));

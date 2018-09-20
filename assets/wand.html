@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="js/wand.js"></script>
+    <script>
+        $(document).ready(function() {
+            window.addEventListener("MozOrientation", handleOrientationEvent, true);
+            window.addEventListener("deviceorientation", handleOrientationEvent, true);
+        });
+    </script>
+    <link rel="stylesheet" href="css/wand.css" >
+</head>
+
+<body class="vbox viewport">
+  <style>
+    
+  </style>
+    <section class="main hbox">
+        <div class="grid-sq green top" data-note="e4"><p>A</p></div>
+        <div class="grid-sq pink right" data-note="b4"><p>G#</p></div>
+    </section>
+    <section class="main hbox">
+        <div class="grid-sq yellow left" data-note="c4"><p>F</p></div>
+        <div class="grid-sq blue bottom" data-note="d4"><p>E</p></div>
+    </section>
+</body>
+</html>
