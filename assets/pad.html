@@ -1,96 +1,89 @@
 <!DOCTYPE html>
 <head>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <!-- <script src="js/client.js"></script> -->
+    <!-- <script src="js/pad.js"></script> -->
     <script>
         $(document).ready(function() {
             var button = null;
             $('.key').click(function() {
                 button = $(this).attr('data-key');
                 console.log(button); //print in console
-                $.post('/soundparticipant', {"button": button}, function(data) {
+                $.post('/soundparticipant', {"note": button}, function(data) {
                     console.log(data)
                 })
-                // .done(() => console.log('done'))
-                // .fail((err) => console.log(err))
+                .done(() => console.log('done'))
+                .fail((err) => console.log(err))
             });
         });
     </script>
+    <link rel="stylesheet" href="css/pad.css" >
 </head>
 
 <body>
-  <style>
-    body {
-        font-family: sans-serif;
-        color: #3D3D3D;
-        font-size: 8pt;
-        background: url('bg.png') bottom right;
-        background-repeat: no-repeat;
-        background-attachment: fixed;
-        background-size: cover;
-    }
-    #drum-pad {
-        width: 252px;
-        padding: 20px;
-        margin: 0 auto;
-        margin-top: 100px;
-        overflow: hidden;
-        background-color: #00b9f2;
-        border-radius: 20px;
-        box-shadow: 10px 10px 0px #df348e;
-    }
-    .key {
-        width: 70px;
-        height: 55px;
-        float: left;
-        margin: 5px;
-        padding: 15px 0 0 0;
-        text-transform: uppercase;
-        text-align: center;
-        transition: all .05s;
-        background-color: #E3E3E3;
-        border: 1px solid white;
-        border-radius: 5px;
-        box-shadow: 3px 3px 0px rgba(0,0,0,0.3);
-    }
-    .letter {
-        font-size: 24pt;
-        font-weight: bold;
-    }
-    .key-pressed {
-        -ms-transform: translate(2px, 2px); /* IE 9 */
-        -webkit-transform: translate(2px, 2px); /* Safari */
-        transform: translate(2px, 2px);
-        box-shadow: none;
-    }
-  </style>
     <div id="drum-pad">
-        <span data-key="bass" class="key" >
-           bass
-       </span>
-        <span data-key="drum" class="key">
-            drum
+        <span data-key="drone" class="key" >
+            Drone
         </span>
-        <span data-key="sound1" class="key">
-           sound1
-       </span>
-        <span data-key="sound2" class="key">
-           sound2
-       </span>
-        <span data-key="sound-3" class="key">
-            sound-3
+        <span data-key="A4" class="key">
+            A4
         </span>
-        <span data-key="sound-4" class="key">
-            sound-4
+        <span data-key="A35" class="key">
+            A3-triad
         </span>
-        <span data-key="synth-1" class="key">
-            synth-1
+        <span data-key="C4" class="key">
+            C4
         </span>
-        <span data-key="synth-2" class="key">
-            synth-2
+        <span data-key="C25" class="key">
+            C2-maj5
         </span>
-        <span data-key="oh-yeah" class="key">
-            oh-yeah
+        <span data-key="D4" class="key">
+            D4
+        </span>
+        <span data-key="D24" class="key">
+            D2-sus
+        </span>
+        <span data-key="D33" class="key">
+            D3-maj
+        </span>
+        <span data-key="DG3" class="key">
+            D3-G3
+        </span>
+        <span data-key="E24" class="key">
+            E2-sus
+        </span>
+        <span data-key="EF4" class="key">
+            E4-F4
+        </span>
+        <span data-key="F24" class="key">
+            F2-sus
+        </span>
+        <span data-key="F33" class="key">
+            F3-maj
+        </span>
+        <span data-key="G4" class="key">
+            G4
+        </span>
+        <span data-key="G34" class="key">
+            G3-maj4
+        </span>
+        <span data-key="G35" class="key">
+            G3-triad
+        </span>
+        <span data-key="A3min" class="key">
+            A3-min
+        </span>
+        <span data-key="E4" class="key">
+            A3-maj4
+        </span>
+        <span data-key="A34" class="key">
+            A3-maj4
+        </span>
+        <span data-key="GF4" class="key">
+            G4-F4
+        </span>
+        <span data-key="E4" class="key">
+            A3-maj4
         </span>
     </div>
 </body>
