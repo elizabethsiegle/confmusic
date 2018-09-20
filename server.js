@@ -24,6 +24,7 @@ function randomIntFromInterval(min,max) {
   return Math.floor(Math.random()*(max-min+1)+min);
 }
 // configuring middleware
+app.set('port', (process.env.PORT || 3000));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.raw({ type: 'audio/x-wav'})); //vnd.wave
 app.use(bodyParser.json());
@@ -167,6 +168,6 @@ process.on('SIGUSR2', exitHandler.bind(null, {exit:true}));
 process.on('uncaughtException', exitHandler.bind(null, {exit:true}));
 
 // start server
-app.listen(3000, () => console.log('started server'));
+app.listen(app.get('port'), () => console.log('started server'));
 
   
