@@ -10,8 +10,6 @@ const _ = require('underscore');
 var urllib = require('urllib');
 var url = require('url');
 var weightedRandom = require('weighted-random');
-const urllib = require('urllib');
-const url = require('url');
 const app = express();
 const twilio = require('twilio');
 const soundRouter = require('./routers/sound-router')
@@ -63,120 +61,6 @@ app.post('/hold', (req, res) => {
   //res.type('audio/wav').send(twiml2.toString());
 });
 
-
-const soundDict = [{
-    sound: "oh-yeah",
-    file: b5,
-    url: baseURL+"/ohyeah",
-    conference: "okgo-conference-A",
-    sid : "",
-    active: 'false',
-    num: 0, //should be same as members.length
-    members: [], //init
-    weight: 10,
-    confNum: 0
-  }, {
-    sound: "bass",
-    file: c5,
-    url: baseURL+"/bass",
-    conference: "okgo-conference-B",
-    sid : "",
-    active: 'false',
-    num: 0, //should be same as members.length
-    members: [], //init
-    weight: 10,
-    confNum: 1
-  }, {
-    sound: "drum",
-    file: d5,
-    url: baseURL+"/drum",
-    conference: "okgo-conference-C",
-    sid : "",
-    active: 'false',
-    num: 0, //should be same as members.length
-    members: [], //init
-    weight: 10,
-    confNum: 2
-  }, {
-    sound: "sound1",
-    file: c6,
-    url: baseURL+"/sound1",
-    conference: "okgo-conference-D",
-    sid: "",
-    active: 'false',
-    num: 0, //should be same as members.length
-    members: [], //init
-    weight: 10,
-    confNum: 3
-  }, {
-    sound: "sound2",
-    file: f5,
-    url: baseURL+"/sound2",
-    conference: "okgo-conference-E",
-    sid: "",
-    active: 'false',
-    num: 0, //should be same as members.length
-    members: [], //init
-    weight: 10,
-    confNum: 4
-  }, { 
-    sound: "oh-yeah-2",
-    file: b5,
-    url: baseURL+"/ohyeah",
-    conference: "okgo-conference-F",
-    sid : "",
-    active: 'false',
-    num: 0, //should be same as members.length
-    members: [], //init
-    weight: 10,
-    confNum: 5
-  }, {
-    sound: "bass-2",
-    file: c5,
-    url: baseURL+"/bass",
-    conference: "okgo-conference-G",
-    sid : "",
-    active: 'false',
-    num: 0, //should be same as members.length
-    members: [], //init
-    weight: 10,
-    confNum: 6
-  }, {
-    sound: "drum-2",
-    file: d5,
-    url: baseURL+"/drum",
-    conference: "okgo-conference-H",
-    sid : "",
-    active: 'false',
-    num: 0, //should be same as members.length
-    members: [], //init
-    weight: 10,
-    confNum: 7
-  }, {
-    sound: "sound1-2",
-    file: c6,
-    url: baseURL+"/sound1",
-    conference: "okgo-conference-I",
-    sid: "",
-    active: 'false',
-    num: 0, //should be same as members.length
-    members: [], //init
-    weight: 10,
-    confNum: 8
-  }, {
-    sound: "sound2-2",
-    file: f5,
-    url: baseURL+"/sound2",
-    conference: "okgo-conference-J",
-    sid: "",
-    active: 'false',
-    num: 0, //should be same as members.length
-    members: [], //init
-    weight: 10,
-    confNum: 9
-  }
-]
-
 // creates Twiml for the routes
 let getSoundTwiml = (sound) => {
   let twiml = new twilio.twiml.VoiceResponse(); 
@@ -186,103 +70,45 @@ let getSoundTwiml = (sound) => {
   twiml.redirect(`${baseURL}/hold`);
   return twiml.toString();
 }
-=======
->>>>>>> 712cb4eb864bca521d037066ab0447aa16d797d1
 
 let loadBalance = () => {
   
 }
-let median = values => {
-    values.sort(function(a,b) {
-      return a-b;
-  });
-
-  if(values.length ===0) return 0
-
-  var half = Math.floor(values.length / 2);
-
-  if (values.length % 2)
-    return values[half];
-  else
-    return (values[half - 1] + values[half]) / 2.0;
-}
-let findMode = arr => {
-  var numMapping = {};
-  var greatestFreq = 0;
-  var mode;
-  arr.forEach(function findMode(number) {
-    numMapping[number] = (numMapping[number] || 0) + 1;
-
-    if (greatestFreq < numMapping[number]) {
-      greatestFreq = numMapping[number];
-      mode = number;
-    }
-  });
-  return +mode;
-}
 
 // configure routes
 var numCallersArr = [];
-
+var numCallers = 0;
 app.post('/joinconference', (req, res) => {  
+  numCallers += 1;
   let twiml = new twilio.twiml.VoiceResponse();
-  var maxArr = []; //array of number of people
-
   let rand = 0; //init
   let maxLines = soundDict.length - 1;
-  rand = randomIntFromInterval(0,maxLines);
+  //rand = randomIntFromInterval(0,maxLines);
   console.log(`Max Lines allowed: ${maxLines}`)
-  _.each(soundDict, (obj, i) => {
-    maxArr[i] = obj.num;
-    maxArr.forEach(function (el) {
-      if(el == i) {
-        maxArr[el] = i;
-      }
-      maxArr[el] = 0;
-    });
-    console.log("here maxArr ", maxArr);
-    if(obj.num !== -1) maxArr.splice(obj.num, 1); //remove from maxArr
-    var min = Math.min.apply(Math, maxArr),
-    max = Math.max.apply(Math, maxArr),
-    med = median(maxArr),
-    mode = findMode(maxArr);
-    console.log("min, max, med, mode ", min, max, med, mode);
-    console.log("obj.num ", obj.num);
-    console.log("maxArr ", maxArr);
-    if(obj.num == min) {
-      obj.weight = 20;
-    } 
-    else if(obj.num == max) {
-      obj.weight = 2;
-    }
-    else if(obj.num == med) {
-      obj.weight = 8;
-    }
-    obj.weight = 10;
-  }); //_each
-  var weights = soundDict.map(function(conf) {
-    return conf.weight;
-  });
-  rand = weightedRandom(weights);
-    if(obj.num != 5) { //change this line to change which elements added to maxArr, considered in rand()
-      maxArr.push(obj.num); 
-      rand = randomIntFromInterval(0,maxLines);
-    } else {
-      if(obj.num !== -1) maxArr.splice(obj.num, 1); //remove from maxArr
-      rand = maxArr[Math.floor(Math.random()*maxArr.length)]; //rand from maxArr
-      console.log("RAND = "+rand)
-    }
-  });
-  
+  //not random but even, even if bulk call all at once
+  if(numCallers % 5 == 0) {
+    rand = 0;
+  }
+  else if(numCallers % 5 == 1) {
+    rand = 1;
+  }
+  else if(numCallers % 5 == 2) {
+    rand = 2;
+  }
+  else if(numCallers % 5 == 3) {
+    rand = 3;
+  }
+  else if (numCallers % 5 == 4) {
+    rand = 4;
+  }
   soundDict[rand].num += 1; //another person added to conference
   //console.log("num in conf ", soundDict[rand].num);
-  twiml.say(`Get ready to be amazed by Okay Go. Welcome to conference ${soundDict[rand].conference}!`);
+  twiml.say(`Get ready to be amazed by Okay Go. Welcome to ${soundDict[rand].conference}!`);
   if(req.body.From != fromNumber && !numCallersArr.includes(req.body.From)) { //fromNumber is the ghost caller, tends to call a lot lmao
     let caller = req.body.From;
     numCallersArr.push(caller); //total callers
     soundDict[rand].members.push(caller); //don't add ghostnumber, only real audience numbers
     console.log("caller", caller);
-    console.log("soundDict[rand].members ", soundDict[rand].members);
   }
   let dial = twiml.dial();
 
@@ -292,10 +118,9 @@ app.post('/joinconference', (req, res) => {
     startConferenceOnEnter: true //run once
     // muted: true //yolo
   });
-  
+  console.log("soundDict ", soundDict);
   res.type('text/xml').send(twiml.toString());
 });
-
 
 let injectAudio = (sid, url, func) => {
   client.calls(sid)

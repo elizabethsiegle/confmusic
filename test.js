@@ -128,14 +128,6 @@ client.calls.create({
 })
 .then(call => console.log(call.sid))
 .done();
-//fromNum -> returns undefined 
-// client.calls.create({
-// 	url: 'http://demo.twilio.com/docs/voice.xml',
-//     to: '+12243130660',
-//     from: '+14153635682'
-// })
-// .then(call => console.log(call.sid))
-// .done();
 client.calls.create({
 	url: 'http://demo.twilio.com/docs/voice.xml',
     to: '+12243130660',
