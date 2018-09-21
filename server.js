@@ -1,6 +1,5 @@
 'use strict';
-var dotenv = require('dotenv');
-dotenv.load();
+require('dotenv').load();
 const bodyParser = require('body-parser');
 const express = require('express');
 const http = require('http');
@@ -36,8 +35,9 @@ let loadBalance = () => {
 
 // configure routes
 var numCallersArr = [];
-
+var numCallers = 0;
 app.post('/joinconference', (req, res) => {  
+  numCallers += 1;
   let twiml = new twilio.twiml.VoiceResponse();
   var maxArr = []; //array of number of people
 
@@ -45,17 +45,22 @@ app.post('/joinconference', (req, res) => {
   let maxLines = soundDict.length - 1;
   rand = randomIntFromInterval(0,maxLines);
   console.log(`Max Lines allowed: ${maxLines}`)
-  _.each(soundDict, (obj, i) => {
-    if(obj.num != 5) { //change this line to change which elements added to maxArr, considered in rand()
-      maxArr.push(obj.num); 
-      rand = randomIntFromInterval(0,maxLines);
-    } else {
-      if(obj.num !== -1) maxArr.splice(obj.num, 1); //remove from maxArr
-      rand = maxArr[Math.floor(Math.random()*maxArr.length)]; //rand from maxArr
-      console.log("RAND = "+rand)
-    }
-  });
-  
+  //not random but even, even if bulk call all at once
+  if(numCallers % 5 == 0) {
+    rand = 0;
+  }
+  else if(numCallers % 5 == 1) {
+    rand = 1;
+  }
+  else if(numCallers % 5 == 2) {
+    rand = 2;
+  }
+  else if(numCallers % 5 == 3) {
+    rand = 3;
+  }
+  else if (numCallers % 5 == 4) {
+    rand = 4;
+  }
   soundDict[rand].num += 1; //another person added to conference
   //console.log("num in conf ", soundDict[rand].num);
   twiml.say(`Get ready to be amazed by Okay Go. Welcome to conference ${soundDict[rand].conference}!`);
