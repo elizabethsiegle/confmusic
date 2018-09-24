@@ -5,11 +5,15 @@
     <!-- <script src="js/pad.js"></script> -->
     <script>
         $(document).ready(function() {
-            var button = null;
             $('.key').click(function() {
-                button = $(this).attr('data-key');
-                console.log(button); //print in console
-                $.post('/soundparticipant', {"note": button}, function(data) {
+                var button = $(this);
+                button.addClass('key-pressed');
+                setTimeout(function () {
+                    button.removeClass('key-pressed');
+                }, 200)
+                var note = $(this).attr('data-key');
+                console.log(note); //print in console
+                $.post('/soundparticipant', {"note": note}, function(data) {
                     console.log(data)
                 })
                 .done(() => console.log('done'))

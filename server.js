@@ -45,6 +45,9 @@ app.post('/joinconference', (req, res) => {
   let maxLines = soundDict.length - 1;
   rand = randomIntFromInterval(0,maxLines);
   console.log(`Max Lines allowed: ${maxLines}`)
+  let minConference = _.min(soundDict, (obj) => {
+    return obj.num;
+  })
   _.each(soundDict, (obj, i) => {
     if(obj.num != 5) { //change this line to change which elements added to maxArr, considered in rand()
       maxArr.push(obj.num); 
@@ -56,9 +59,9 @@ app.post('/joinconference', (req, res) => {
     }
   });
   
-  soundDict[rand].num += 1; //another person added to conference
+  minConference.num += 1; //another person added to conference
   //console.log("num in conf ", soundDict[rand].num);
-  twiml.say(`Get ready to be amazed by Okay Go. Welcome to conference ${soundDict[rand].conference}!`);
+  twiml.say(`Get ready to be amazed by Okay Go. Welcome to conference ${minConference.conference}!`);
   if(req.body.From != fromNumber && !numCallersArr.includes(req.body.From)) { //fromNumber is the ghost caller, tends to call a lot lmao
     let caller = req.body.From;
     numCallersArr.push(caller);
@@ -68,10 +71,10 @@ app.post('/joinconference', (req, res) => {
   let dial = twiml.dial();
 
   //loadBalance();
-  console.log(`/////////////////////////////// CALLER JOINED -------------------------->> ${soundDict[rand]['conference']}.`);
-  dial.conference(soundDict[rand]['conference'], {
-    startConferenceOnEnter: true //run once
-    // muted: true //yolo
+  console.log(`/////////////////////////////// CALLER JOINED -------------------------->> ${minConference.conference}.`);
+  dial.conference(minConference.conference, {
+    startConferenceOnEnter: true, //run once
+    muted: true //yolo
   });
   
   res.type('text/xml').send(twiml.toString());

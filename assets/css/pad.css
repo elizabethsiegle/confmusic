@@ -2,7 +2,7 @@ body {
     font-family: sans-serif;
     color: #3D3D3D;
     font-size: 8pt;
-    background: url('bg.png') bottom right;
+    background: url('../bg.png') bottom right;
     background-repeat: no-repeat;
     background-attachment: fixed;
     background-size: cover;
@@ -24,12 +24,15 @@ body {
     margin: 5px;
     padding: 15px 0 0 0;
     text-transform: uppercase;
+    cursor: pointer;
     text-align: center;
     transition: all .05s;
     background-color: #E3E3E3;
     border: 1px solid white;
     border-radius: 5px;
     box-shadow: 3px 3px 0px rgba(0,0,0,0.3);
+    -webkit-transition: all 0.3s; /* Safari */
+    transition: all 0.3s;
 }
 .letter {
     font-size: 24pt;

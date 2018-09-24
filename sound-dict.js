@@ -10,7 +10,7 @@ const noteMap = {
 }
 
 module.exports = [{
-    notes: ['D33', 'G34', 'EF4', 'C25'],
+    notes: ['D33', 'G34', 'EF4', 'C25', '50', '55', '60', '65', '70'],
     conference: "okgo-conference-A",
     phoneNumber: "+18596006546",
     sid : "",
@@ -18,28 +18,28 @@ module.exports = [{
     num: 0, //should be same as members.length
     members: [] //init
   }, {
-    notes: ['A35', 'A3min', 'G4', 'D24'],
+    notes: ['A35', 'A3min', 'G4', 'D24', '51', '56', '61', '66'],
     conference: "okgo-conference-B",
     phoneNumber: "+15406666546",
     sid : "",
     num: 0, //should be same as members.length
     members: [] //init
   }, {
-    notes: ['G35', 'A4', 'C4', 'E24'],
+    notes: ['G35', 'A4', 'C4', 'E24', '52', '57', '62', '67'],
     conference: "okgo-conference-C",
     phoneNumber: "+16175536546",
     sid : "",
     num: 0, //should be same as members.length
     members: [] //init
   }, {
-    notes: ['F33', 'DG3', 'D4', 'F24'],
+    notes: ['F33', 'DG3', 'D4', 'F24', '53', '58', '63', '68'],
     conference: "okgo-conference-D",
     phoneNumber: "+16307556546",
     sid: "",
     num: 0, //should be same as members.length
     members: [] //init
   }, {
-    notes: ['A34', 'GF4', 'E4', 'drone'],
+    notes: ['A34', 'GF4', 'E4', 'drone', '54', '59', '64', '69'],
     conference: "okgo-conference-E",
     phoneNumber: "+16194576546",
     sid: "",
