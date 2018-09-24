@@ -1,6 +1,5 @@
 'use strict';
-var dotenv = require('dotenv');
-dotenv.load();
+require('dotenv').load();
 const bodyParser = require('body-parser');
 const express = require('express');
 const http = require('http');
@@ -35,43 +34,23 @@ let loadBalance = () => {
 }
 
 // configure routes
-var numCallersArr = [];
+var numCallers = 0;
 
 app.post('/joinconference', (req, res) => {  
+  numCallers += 1;
   let twiml = new twilio.twiml.VoiceResponse();
-  var maxArr = []; //array of number of people
-
-  let rand = 0; //init
   let maxLines = soundDict.length - 1;
-  rand = randomIntFromInterval(0,maxLines);
-  console.log(`Max Lines allowed: ${maxLines}`)
+
+  // Load balancing - idea use _.min to just add the caller to the room with the least people?
   let minConference = _.min(soundDict, (obj) => {
     return obj.num;
   })
-  _.each(soundDict, (obj, i) => {
-    if(obj.num != 5) { //change this line to change which elements added to maxArr, considered in rand()
-      maxArr.push(obj.num); 
-      rand = randomIntFromInterval(0,maxLines);
-    } else {
-      if(obj.num !== -1) maxArr.splice(obj.num, 1); //remove from maxArr
-      rand = maxArr[Math.floor(Math.random()*maxArr.length)]; //rand from maxArr
-      console.log("RAND = "+rand)
-    }
-  });
-  
   minConference.num += 1; //another person added to conference
-  //console.log("num in conf ", soundDict[rand].num);
-  twiml.say(`Get ready to be amazed by Okay Go. Welcome to conference ${minConference.conference}!`);
-  if(req.body.From != fromNumber && !numCallersArr.includes(req.body.From)) { //fromNumber is the ghost caller, tends to call a lot lmao
-    let caller = req.body.From;
-    numCallersArr.push(caller);
-    soundDict[rand].members.push(caller); //don't add ghostnumber, only real audience numbers
-    //console.log("caller", caller);
-  }
-  let dial = twiml.dial();
-
-  //loadBalance();
+  // Some logging for testing
   console.log(`/////////////////////////////// CALLER JOINED -------------------------->> ${minConference.conference}.`);
+
+  twiml.say(`Get ready to be amazed by Okay Go. Welcome to conference ${minConference.conference}!`);
+  let dial = twiml.dial();
   dial.conference(minConference.conference, {
     startConferenceOnEnter: true, //run once
     muted: true //yolo
