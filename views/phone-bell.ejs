@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Phone Bell - <%= note %></title>
+  <link rel="stylesheet" href="/css/bell.css">
+</head>
+<body class="vbox viewport">
+  <div id="log"></div>
+  <div class="hangup">Hangup</div>
+  <div class="action <%= note %>">
+    <audio src="/audio/<%= note %>.mp3" id="handbellAudio" preload="auto" controls playsinline loop muted></audio>
+    <h1><%= note %></h1>
+  </div>
+  <div class="accent"></div>
+  <div id="controls" class="hidden">
+    <div id="call-controls" class="hbox hidden">
+      <button id="button-call" class="button grid-sq">Call</button>
+      <button id="button-hangup" class="button grid-sq">Hangup</button>
+    </div>
+  </div>
+
+
+  <script type="text/javascript" src="/js/twilio.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="/js/bell.js"></script>
+  <script src="/js/bell-client.js"></script>
+  <script type="text/javascript">
+    const note = '<%= note %>';
+    let audioStream, 
+        handbell,
+        name;
+    $(document).ready(function() {
+      audioStream = document.getElementById("handbellAudio").captureStream();
+      console.log(audioStream);
+      handbell = new HandBell({name: note, el:'handbellAudio'});
+      // window.addEventListener("MozOrientation", handleOrientationEvent, true);
+      // window.addEventListener("deviceorientation", handleOrientationEvent, true);
+      window.addEventListener("devicemotion", handleMotion, true);
+    });
+  </script>
+</body>
+</html>

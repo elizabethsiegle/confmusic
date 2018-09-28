@@ -17,6 +17,8 @@
         <a id="get-devices">Seeing unknown devices?</a>
       </div>
     </div>
+    <button id="play-audio">Play</button>
+    <audio src="/audio/gravity.mp3" id="handbellAudio" preload="auto" controls></audio>
     <div id="call-controls">
       <p class="instructions">Make a Call:</p>
       <input id="phone-number" type="text" placeholder="Enter a phone # or client name" />
@@ -31,9 +33,14 @@
     </div>
     <div id="log"></div>
   </div>
-
-  <script type="text/javascript" src="https://media.twiliocdn.com/sdk/js/client/v1.4/twilio.min.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script type="text/javascript" src="js/twilio-og.js"></script>
   <script src="js/client.js"></script>
+  <script type="text/javascript">
+    var audioStream;
+    $(document).ready(function() {
+      audioStream = document.getElementById("handbellAudio").captureStream();
+    });
+  </script>
 </body>
 </html>

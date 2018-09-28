@@ -1,0 +1,221 @@
+$green: #00B26C;
+$blue: #00B9F2;
+$pink: #ED3193;
+$yellow: #FFF453;
+$purple: #593A96;
+$red: #F22F46;
+.green { background-color: $green;}
+.blue { background-color: $blue; }
+.pink { background-color: $pink; }
+.yellow { background-color: $yellow; }
+.purple { background-color: $purple; }
+.red { background-color: $red; }
+html, body, .viewport {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    overflow:hidden;
+}
+.accent {
+    width: 200px;
+    height: 200px;
+    opacity:0.2;
+    margin:auto;
+    background-color:white;
+    -webkit-transition: all 0.3s; /* Safari */
+    transition: all 0.3s;
+    -webkit-transform: scale(0);
+    transform: scale(0);
+    z-index:4;
+    border-radius:50%;
+    float: left;
+    &.live {
+        -webkit-transform: scale(6);
+        transform: scale(6);
+        opacity:1;
+    }
+}
+.hangup {
+    width:100%;
+    height:20%;
+    position:absolute;
+    z-index:-1;
+    opacity:0;
+    cursor:pointer;
+    bottom:0px;
+    &.foreground {
+        z-index:100;
+    }
+}
+.action {
+    width:100%;
+    height:100%;
+    position:absolute;
+    z-index:1;
+    background-color:#333333;
+    &.live {
+        &.a4, &.g4, &.f5  {
+            background-color:$blue;
+        }
+        &.b4, &.a5 {
+            background-color:$pink;
+        }
+        &.c4, &.b5 {
+            background-color:$yellow;
+        }
+        &.d4, &.c5 {
+            background-color: $purple;
+        }
+        &.e4, &.d5 {
+            background-color:$green;
+        }
+        &.f4, &.e5 {
+            background-color:$red;
+        }
+        
+    }
+    audio {
+        position: relative;
+        top: 50%;
+        left: 37%;
+        display:block;
+    }
+    h1 {
+        display: block;
+        font-size: 27em;
+        font-family: helvetica;
+        color: white;
+        margin:20% 0px;
+        text-align: center;
+        width: 100%;
+    }
+}
+#controls {
+    z-index:2;
+    .button {
+        padding:1em 0em;
+        font-size:3em;
+        border-radius:0;
+    }
+}
+#log {
+    width: 100%;
+    position: fixed;
+    top: 0px;
+    text-align: center;
+    color: white;
+    z-index:5;
+    p {
+        display: inline;
+        margin: 10px;
+        font-family: sans-serif;
+        font-size: 0.5em;
+    }
+}
+.hidden {
+    visibility: hidden;
+}
+.vbox {
+    /* previous syntax */
+    display: -webkit-box;
+    display:    -moz-box;
+    display:         box;
+
+    -webkit-box-orient: vertical;
+       -moz-box-orient: vertical;
+        -ms-box-orient: vertical;
+            box-orient: vertical;
+
+    /* current syntax */
+    display: -webkit-flex;
+    display:    -moz-flex;
+    display:     -ms-flex;
+    display:         flex;
+
+    -webkit-flex-direction: column;
+       -moz-flex-direction: column;
+        -ms-flex-direction: column;
+            flex-direction: column;
+} 
+
+  /* items flex/expand horizontally */
+.hbox {
+    /* previous syntax */
+    display: -webkit-box;
+    display:    -moz-box;
+    display:     -ms-box;
+    display:         box;
+
+    -webkit-box-orient: horizontal;
+       -moz-box-orient: horizontal;
+        -ms-box-orient: horizontal;
+            box-orient: horizontal;
+
+    /* current syntax */
+    display: -webkit-flex;
+    display:    -moz-flex;
+    display:     -ms-flex;
+    display:         flex;
+
+    -webkit-flex-direction: row;
+       -moz-flex-direction: row;
+        -ms-flex-direction: row;
+            flex-direction: row;
+}
+
+.space-between {
+    /* previous syntax */
+    -webkit-box-pack: justify;
+       -moz-box-pack: justify;
+        -ms-box-pack: justify;
+            box-pack: justify;
+
+    /* current syntax */
+    -webkit-justify-content: space-between;
+       -moz-justify-content: space-between;
+        -ms-justify-content: space-between;
+            justify-content: space-between;
+}
+.main {
+    /* previous syntax */
+    -webkit-box-flex: 1;
+       -moz-box-flex: 1;
+        -ms-box-flex: 1;
+            box-flex: 1;
+
+    /* current syntax */
+    -webkit-flex: 1;
+       -moz-flex: 1;
+        -ms-flex: 1;
+            flex: 1;
+}
+.grid-sq {
+    /* previous syntax */
+    -webkit-box-flex: 1;
+       -moz-box-flex: 1;
+        -ms-box-flex: 1;
+            box-flex: 1;
+
+    /* current syntax */
+    -webkit-flex: 1;
+       -moz-flex: 1;
+        -ms-flex: 1;
+            flex: 1;
+
+    -webkit-transition: all 0.3s; /* Safari */
+    transition: all 0.3s;
+    p {
+        margin: auto;
+        text-align: center;
+        font-family: sans-serif;
+        color: rgba(255,255,255,0.3);
+        font-weight: bold;
+        line-height: 7em;
+        font-size: 3em;
+    }
+}
+
+.grid-sq.big {
+    transform: scale(3);
+    z-index: 1;
+}

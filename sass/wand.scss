@@ -1,0 +1,116 @@
+html, body, .viewport {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    overflow:hidden;
+}
+.vbox {
+    /* previous syntax */
+    display: -webkit-box;
+    display:    -moz-box;
+    display:         box;
+
+    -webkit-box-orient: vertical;
+       -moz-box-orient: vertical;
+        -ms-box-orient: vertical;
+            box-orient: vertical;
+
+    /* current syntax */
+    display: -webkit-flex;
+    display:    -moz-flex;
+    display:     -ms-flex;
+    display:         flex;
+
+    -webkit-flex-direction: column;
+       -moz-flex-direction: column;
+        -ms-flex-direction: column;
+            flex-direction: column;
+} 
+
+  /* items flex/expand horizontally */
+.hbox {
+    /* previous syntax */
+    display: -webkit-box;
+    display:    -moz-box;
+    display:     -ms-box;
+    display:         box;
+
+    -webkit-box-orient: horizontal;
+       -moz-box-orient: horizontal;
+        -ms-box-orient: horizontal;
+            box-orient: horizontal;
+
+    /* current syntax */
+    display: -webkit-flex;
+    display:    -moz-flex;
+    display:     -ms-flex;
+    display:         flex;
+
+    -webkit-flex-direction: row;
+       -moz-flex-direction: row;
+        -ms-flex-direction: row;
+            flex-direction: row;
+}
+
+.space-between {
+    /* previous syntax */
+    -webkit-box-pack: justify;
+       -moz-box-pack: justify;
+        -ms-box-pack: justify;
+            box-pack: justify;
+
+    /* current syntax */
+    -webkit-justify-content: space-between;
+       -moz-justify-content: space-between;
+        -ms-justify-content: space-between;
+            justify-content: space-between;
+}
+.main {
+    /* previous syntax */
+    -webkit-box-flex: 1;
+       -moz-box-flex: 1;
+        -ms-box-flex: 1;
+            box-flex: 1;
+
+    /* current syntax */
+    -webkit-flex: 1;
+       -moz-flex: 1;
+        -ms-flex: 1;
+            flex: 1;
+}
+.grid-sq {
+    /* previous syntax */
+    -webkit-box-flex: 1;
+       -moz-box-flex: 1;
+        -ms-box-flex: 1;
+            box-flex: 1;
+
+    /* current syntax */
+    -webkit-flex: 1;
+       -moz-flex: 1;
+        -ms-flex: 1;
+            flex: 1;
+
+    -webkit-transition: all 0.3s; /* Safari */
+    transition: all 0.3s;
+    p {
+        margin: auto;
+        text-align: center;
+        font-family: sans-serif;
+        color: rgba(255,255,255,0.3);
+        font-weight: bold;
+        line-height: 7em;
+        font-size: 3em;
+    }
+}
+
+.grid-sq.big {
+    transform: scale(3);
+    z-index: 1;
+}
+.green { background-color: #00B26C;}
+.blue { background-color: #00B9F2; }
+.pink { background-color: #ED3193; }
+.yellow { background-color: #FFF453; }
+.purple { background-color: #593A96; }
+.red { background-color: #F22F46; }

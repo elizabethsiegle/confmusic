@@ -2,6 +2,7 @@
 require('dotenv').load();
 const bodyParser = require('body-parser');
 const express = require('express');
+const sassMiddleware = require('node-sass-middleware');
 const http = require('http');
 const fs = require('fs')
 const path = require('path');
@@ -12,7 +13,8 @@ const app = express();
 const twilio = require('twilio');
 const soundRouter = require('./routers/sound-router')
 
-const soundDict = require('./sound-dict.js')
+// const soundDict = require('./sound-dict.js')
+const soundDict = require('./sound-dict-test.js')
 
 const client = require('twilio')(process.env.TWILIO_DOITLIVE_SID, process.env.TWILIO_DOITLIVE_AUTH_TOKEN);
 const fromNumber = "+14153635682";
@@ -27,7 +29,15 @@ app.set('port', (process.env.PORT || 3000));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.raw({ type: 'audio/x-wav'})); //vnd.wave
 app.use(bodyParser.json());
-
+app.set('view engine', 'ejs');
+app.use(sassMiddleware({
+    /* Options */
+    src: path.join(__dirname, 'sass'),
+    dest: path.join(__dirname, 'assets/css'),
+    debug: true,
+    outputStyle: 'compressed',
+    prefix:  '/css'  // Where prefix is at <link rel="stylesheets" href="prefix/style.css"/>
+}));
 
 let loadBalance = () => {
   
@@ -52,8 +62,8 @@ app.post('/joinconference', (req, res) => {
   twiml.say(`Get ready to be amazed by Okay Go. Welcome to conference ${minConference.conference}!`);
   let dial = twiml.dial();
   dial.conference(minConference.conference, {
-    startConferenceOnEnter: true, //run once
-    muted: true //yolo
+    startConferenceOnEnter: true //run once
+    // muted: true //yolo
   });
   
   res.type('text/xml').send(twiml.toString());
@@ -117,6 +127,9 @@ app.get('/', function(req, res){
   res.sendFile('assets/pad.html', { root : __dirname});
 }).get('/wand', function(req, res){
   res.sendFile('assets/wand.html', { root : __dirname});
+}).get('/bell/:note', function(req, res){
+  console.log(req.params.note);
+  res.render('phone-bell', {note: req.params.note});
 }).get('/client', function(req, res){
   res.sendFile('assets/client-test.html', { root : __dirname});
 });
@@ -143,8 +156,8 @@ process.on('exit', exitHandler.bind(null,{cleanup:true}));
 process.on('SIGINT', exitHandler.bind(null, {exit:true}));
 
 // catches "kill pid" (for example: nodemon restart)
-process.on('SIGUSR1', exitHandler.bind(null, {exit:true}));
-process.on('SIGUSR2', exitHandler.bind(null, {exit:true}));
+// process.on('SIGUSR1', exitHandler.bind(null, {exit:true}));
+// process.on('SIGUSR2', exitHandler.bind(null, {exit:true}));
 
 //catches uncaught exceptions
 process.on('uncaughtException', exitHandler.bind(null, {exit:true}));

@@ -141,6 +141,8 @@ function updateDevices(selectEl, selectedDevices) {
     selectedDevices.forEach(function(device) {
       if (device.deviceId === id) { isActive = true; }
     });
+    console.log(`////////////////////// DEVICE ID = ${id}`)
+    console.log(device);
 
     var option = document.createElement('option');
     option.label = device.label;
