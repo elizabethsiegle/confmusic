@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="shortcut icon" href="/img/favicon_57.png"/>
+  <link rel="apple-touch-icon" href="/img/favicon_57.png"/>
+  <link rel="apple-touch-icon" sizes="72x72" href="/img/favicon_72.png"/>
+  <link rel="apple-touch-icon" sizes="114x114" href="/img/favicon_114.png"/>
+  <title>OKGO/Twilio - <%= note %></title>
+  <link rel="stylesheet" href="/css/bell.css">
+</head>
+<body class="vbox viewport">
+  <div id="log"></div>
+  <div class="hangup">Hangup</div>
+  <div class="action <%= note %> live">
+    <audio src="/audio/<%= note %>.mp3" id="handbellAudio" preload="auto" controls playsinline loop muted></audio>
+    <h1><%= note %></h1>
+  </div>
+  <div class="accent"></div>
+  <div id="controls" class="hidden">
+    <div id="call-controls" class="hbox hidden">
+      <button id="button-call" class="button grid-sq">Call</button>
+      <button id="button-hangup" class="button grid-sq">Hangup</button>
+    </div>
+  </div>
+
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="/js/bell.js"></script>
+  <script type="text/javascript">
+    const note = '<%= note %>';
+    let audioStream, 
+        handbell,
+        name;
+    $(document).ready(function() {
+      handbell = new HandBell({name: note, el:'handbellAudio'});
+      $('.action').on('click touchstart', function(e) {
+        e.stopPropagation()
+        handbell.playNote();
+      });
+    });
+  </script>
+</body>
+</html>

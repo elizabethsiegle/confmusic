@@ -130,6 +130,9 @@ app.get('/', function(req, res){
 }).get('/bell/:note', function(req, res){
   console.log(req.params.note);
   res.render('phone-bell', {note: req.params.note});
+}).get('/touch/:note', function(req, res){
+  console.log(req.params.note);
+  res.render('touch-bell', {note: req.params.note});
 }).get('/client', function(req, res){
   res.sendFile('assets/client-test.html', { root : __dirname});
 });
