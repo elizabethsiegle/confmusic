@@ -33,7 +33,7 @@
         name;
     $(document).ready(function() {
       handbell = new HandBell({name: note, el:'handbellAudio'});
-      $('.action').on('click touchstart', function(e) {
+      $('.action').on('touchstart click', function(e) {
         e.stopPropagation()
         handbell.playNote();
       });
