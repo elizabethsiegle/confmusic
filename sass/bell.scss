@@ -54,22 +54,22 @@ html, body, .viewport {
     z-index:1;
     background-color:#333333;
     &.live {
-        &.a4, &.g4, &.f5  {
+        &.A4, &.G4, &.F5  {
             background-color:$blue;
         }
-        &.b4, &.a5 {
+        &.B4, &.A5 {
             background-color:$pink;
         }
-        &.c4, &.b5 {
+        &.C4, &.B5 {
             background-color:$yellow;
         }
-        &.d4, &.c5 {
+        &.D4, &.C5 {
             background-color: $purple;
         }
-        &.e4, &.d5 {
+        &.E4, &.D5 {
             background-color:$green;
         }
-        &.f4, &.e5 {
+        &.F4, &.E5 {
             background-color:$red;
         }
         
