@@ -11,7 +11,11 @@
 <body class="vbox viewport">
   <div id="log"></div>
   <div class="hangup">Hangup</div>
-  <div class="action <%= note %> live">
+  <% if (note.length >= 3) { %>
+    <div class="action <%= note[0] %><%= note[1] %> live">
+  <% } else { %>
+    <div class="action <%= note[0] %> live">
+  <% } %>
     <audio src="/audio/<%= note %>.mp3" id="handbellAudio" preload="auto" controls playsinline loop muted></audio>
     <h1><%= note %></h1>
   </div>
