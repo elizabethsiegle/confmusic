@@ -11,7 +11,11 @@
 <body class="vbox viewport">
   <div id="log"></div>
   <div class="hangup">Hangup</div>
-  <div class="action <%= note %>">
+  <% if (note.length >= 3) { %>
+    <div class="action <%= note[0] %><%= note[1] %>">
+  <% } else { %>
+    <div class="action <%= note[0] %>">
+  <% } %>
     <audio src="/audio/<%= note %>.mp3" id="handbellAudio" preload="auto" controls playsinline loop muted></audio>
     <h1><%= note %></h1>
   </div>
@@ -33,13 +37,27 @@
     let audioStream, 
         handbell,
         name;
+
     $(document).ready(function() {
       audioStream = document.getElementById("handbellAudio").captureStream();
       console.log(audioStream);
       handbell = new HandBell({name: note, el:'handbellAudio'});
+      $('.action').on('touchstart', function(e) {
+        dialClient();
+        handbell.playNote();
+        log('Dialing...');
+        e.stopPropagation();
+      });
+
+      $('.hangup').on('touchstart', function(e) {
+        hangupClient();
+        log('Hanging up...');
+        e.stopPropagation();
+      });
       // window.addEventListener("MozOrientation", handleOrientationEvent, true);
       // window.addEventListener("deviceorientation", handleOrientationEvent, true);
       window.addEventListener("devicemotion", handleMotion, true);
+      
     });
   </script>
 </body>

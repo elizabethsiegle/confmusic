@@ -48,6 +48,7 @@ var numCallers = 0;
 
 app.post('/joinconference', (req, res) => {  
   numCallers += 1;
+  console.log(req);
   let twiml = new twilio.twiml.VoiceResponse();
   let maxLines = soundDict.length - 1;
 
@@ -61,9 +62,10 @@ app.post('/joinconference', (req, res) => {
 
   twiml.say(`Get ready to be amazed by Okay Go. Welcome to conference ${minConference.conference}!`);
   let dial = twiml.dial();
+  let muted = !(req.body.From == "client:okgo");
   dial.conference(minConference.conference, {
-    startConferenceOnEnter: true //run once
-    // muted: true //yolo
+    startConferenceOnEnter: true, //run once
+    muted: muted //yolo
   });
   
   res.type('text/xml').send(twiml.toString());

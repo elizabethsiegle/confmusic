@@ -63,17 +63,6 @@ $(function () {
       log('Could not get a token from server!');
     });
 
-    $('.action').on('touchstart', function(e) {
-      e.stopPropagation()
-      Twilio.Device.connect("+15556505813");
-    });
-
-    $('.hangup').on('touchstart', function(e) {
-      log('Hanging up...');
-      e.stopPropagation()
-      Twilio.Device.disconnectAll();
-    });
-
   // document.getElementById('get-devices').onclick = function() {
   //   navigator.mediaDevices.getUserMedia({ audio: true })
   //     .then(updateAllDevices);
@@ -142,4 +131,12 @@ function log(message) {
   var logDiv = document.getElementById('log');
   logDiv.innerHTML += '<p>&gt;&nbsp;' + message + '</p>';
   logDiv.scrollTop = logDiv.scrollHeight;
+}
+
+function dialClient() {
+  Twilio.Device.connect("+15556505813");
+}
+
+function hangupClient() {
+  Twilio.Device.disconnectAll();
 }
