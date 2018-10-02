@@ -41,8 +41,14 @@ var generateNumsFromTitoAPI = () => {
         } //if
       } //for
       //check for duplicates
-      numsToCall.toString().split(",");
-      var myjson = '"' + numsToCall.join(' ') + '"';
+      var numsToCallNoDuplicates = [];
+      numsToCall.forEach(function(item) {
+        if(numsToCallNoDuplicates.indexOf(item) < 0) {
+          numsToCallNoDuplicates.push(item);
+        }
+      });
+      numsToCallNoDuplicates.toString().split(",");
+      var myjson = '"' + numsToCallNoDuplicates.join(' ') + '"';
       console.log(myjson);
       fs.writeFile("phonenumstocall.json", myjson, 'utf8', (error) => {
         if(error) {
