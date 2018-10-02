@@ -54,24 +54,43 @@ html, body, .viewport {
     z-index:1;
     background-color:#333333;
     &.live {
-        &.A4, &.G4, &.F5  {
+        &.Ab {
+            background-color:lightblue;
+        }
+        &.A {
             background-color:$blue;
         }
-        &.B4, &.A5 {
+        &.Bb {
+            background-color:darken($blue, 10);
+        }
+        &.B {
             background-color:$pink;
         }
-        &.C4, &.B5 {
+        &.C {
             background-color:$yellow;
         }
-        &.D4, &.C5 {
+        &.Db {
+            background-color:darken($yellow, 10);
+        }
+        &.D {
             background-color: $purple;
         }
-        &.E4, &.D5 {
+        &.Eb {
+            background-color: darken($purple, 10);
+        }
+        &.E {
             background-color:$green;
         }
-        &.F4, &.E5 {
+        &.F {
             background-color:$red;
         }
+        &.Gb {
+            background-color:darken($red, 10);
+        }
+        &.G {
+            background-color:aquamarine;
+        }
+
         
     }
     audio {

@@ -22,7 +22,6 @@ $(function () {
         $('#button-call').addClass('hidden');
         console.log('CONNECTED !!!!!!!!!!!!!!!!!!!!!!!!!!')
         $('.action').addClass('live');
-        $('.hangup').addClass('foreground');
         $('#button-hangup').removeClass('hidden');
         // volumeIndicators.style.display = 'block';
         // bindVolumeIndicators(conn);
@@ -32,7 +31,6 @@ $(function () {
         log('Call ended.');
         $('#button-call').removeClass('hidden');
         $('.action').removeClass('live');
-        $('.hangup').removeClass('foreground');
         $('#button-hangup').addClass('hidden');
       });
 
@@ -61,17 +59,6 @@ $(function () {
     })
     .fail(function () {
       log('Could not get a token from server!');
-    });
-
-    $('.action').on('touchstart', function(e) {
-      e.stopPropagation()
-      Twilio.Device.connect("+15556505813");
-    });
-
-    $('.hangup').on('touchstart', function(e) {
-      log('Hanging up...');
-      e.stopPropagation()
-      Twilio.Device.disconnectAll();
     });
 
   // document.getElementById('get-devices').onclick = function() {
@@ -142,4 +129,12 @@ function log(message) {
   var logDiv = document.getElementById('log');
   logDiv.innerHTML += '<p>&gt;&nbsp;' + message + '</p>';
   logDiv.scrollTop = logDiv.scrollHeight;
+}
+
+function dialClient() {
+  Twilio.Device.connect("+15556505813");
+}
+
+function hangupClient() {
+  Twilio.Device.disconnectAll();
 }
