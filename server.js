@@ -36,39 +36,10 @@ app.use(sassMiddleware({
     outputStyle: 'compressed',
     prefix:  '/css'  // Where prefix is at <link rel="stylesheets" href="prefix/style.css"/>
 }));
-var tito_api_key = process.env.TITO_API_KEY;
+
 
 // configure routes
 var numCallers = 0;
-
-var callNumsFromJson = () => {
-  var numsToCallArr = []
-  request.get('https://api.tito.io/v2/signal/signal-2017-sf/tickets', {
-    headers:{
-      'Authorization': `Token token=${tito_api_key}`, 
-      'Accept': 'application/vnd.api+json'
-    }}, function(err, response, body) {
-      if (err) { return res.status(500).end('Error'); }
-      var tickets = JSON.parse(response.body).data;
-      for (var i = tickets.length - 1; i >= 0; i--) {
-        //addUser(tickets[i]);
-        if(tickets[i].attributes['phone-number']) {
-          console.log("yes", tickets[i].attributes["phone-number"])
-          numsToCallArr.push(tickets[i].attributes["phone-number"]);
-          client.calls
-          .create({
-            url: 'https://demo.twilio.com/docs/classic.mp3', //need to change from rickroll 
-            to: tickets[i].attributes["phone-number"], 
-            from: '+18503320435' // any verified twilio number
-          })
-          .then(call => console.log(call.sid))
-          .catch(err => console.log(err))
-        } //if
-      } //for
-      console.log('Done Adding Tickets');
-  }) //func err, res, body
-}
-callNumsFromJson();
 
 app.post('/joinconference', (req, res) => {  
   numCallers += 1;
