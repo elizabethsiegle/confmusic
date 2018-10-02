@@ -10,7 +10,6 @@
 </head>
 <body class="vbox viewport">
   <div id="log"></div>
-  <div class="hangup">Hangup</div>
   <% if (note.length >= 3) { %>
     <div class="action <%= note[0] %><%= note[1] %>">
   <% } else { %>
@@ -20,7 +19,7 @@
     <h1><%= note %></h1>
   </div>
   <div class="accent"></div>
-  <div id="controls" class="hidden">
+  <div id="controls">
     <div id="call-controls" class="hbox hidden">
       <button id="button-call" class="button grid-sq">Call</button>
       <button id="button-hangup" class="button grid-sq">Hangup</button>
@@ -42,16 +41,19 @@
       audioStream = document.getElementById("handbellAudio").captureStream();
       console.log(audioStream);
       handbell = new HandBell({name: note, el:'handbellAudio'});
-      $('.action').on('touchstart', function(e) {
-        dialClient();
+      $('.action').on('touchstart click', function(e) {
+        
         handbell.playNote();
-        log('Dialing...');
+      });
+      $('#button-call').on('click', function(e) {
+        dialClient();
+        // log('Dialing...');
         e.stopPropagation();
       });
 
-      $('.hangup').on('touchstart', function(e) {
+      $('#button-hangup').on('click', function(e) {
         hangupClient();
-        log('Hanging up...');
+        // log('Hanging up...');
         e.stopPropagation();
       });
       // window.addEventListener("MozOrientation", handleOrientationEvent, true);

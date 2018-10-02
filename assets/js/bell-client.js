@@ -22,7 +22,6 @@ $(function () {
         $('#button-call').addClass('hidden');
         console.log('CONNECTED !!!!!!!!!!!!!!!!!!!!!!!!!!')
         $('.action').addClass('live');
-        $('.hangup').addClass('foreground');
         $('#button-hangup').removeClass('hidden');
         // volumeIndicators.style.display = 'block';
         // bindVolumeIndicators(conn);
@@ -32,7 +31,6 @@ $(function () {
         log('Call ended.');
         $('#button-call').removeClass('hidden');
         $('.action').removeClass('live');
-        $('.hangup').removeClass('foreground');
         $('#button-hangup').addClass('hidden');
       });
 
