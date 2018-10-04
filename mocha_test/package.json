@@ -1,0 +1,8 @@
+{
+  "scripts": {
+    "test": "mocha"
+  },
+  "dependencies": {
+    "supertest": "^3.3.0"
+  }
+}
