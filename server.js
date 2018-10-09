@@ -167,6 +167,13 @@ var server = ''
 if (!module.parent) {
   server = app.listen(app.get('port'), () => console.log('started server'));
 }
+// exports.listen = function () {
+//   this.server.listen.apply(this.server, arguments);
+// };
+
+// exports.close = function (callback) {
+//   this.server.close(callback);
+// };
  
 module.exports = {
   verbose: true,

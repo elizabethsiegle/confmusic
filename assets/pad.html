@@ -15,7 +15,7 @@
                 console.log(note); //print in console
                 $.post('/soundparticipant', {"note": note}, function(data) {
                     console.log(data)
-                    return(data);
+                    return("note": note);
                 })
                 .done(() => console.log('done'))
                 .fail((err) => console.log(err))
