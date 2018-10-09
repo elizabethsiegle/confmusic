@@ -14,11 +14,13 @@
   "keywords": [
     "lol"
   ],
+  "test": "NODE_ENV=test jest --forceExit",
   "author": "lizzie, jarod, devin, ricky, andres",
   "license": "ISC",
   "dependencies": {
     "biguint-format": "^1.0.0",
     "body-parser": "^1.18.3",
+    "cb": "^0.1.0",
     "cheerio": "^1.0.0-rc.2",
     "crypto": "^1.0.1",
     "dotenv": "^6.0.0",

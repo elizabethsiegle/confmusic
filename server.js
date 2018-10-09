@@ -1,4 +1,4 @@
-
+'use strict'
 const bodyParser = require('body-parser');
 const express = require('express');
 const sassMiddleware = require('node-sass-middleware');
@@ -100,6 +100,7 @@ let createGhostCallers = () => {
       obj.sid = call.sid;
       console.log(`updating ${obj.conference} with call sid: ${call.sid}`)
       console.log(`Call status: ${call.status}`)
+      return "obj.sid"
       // console.log("obj ", obj)
     }).catch(err => console.log(err))
   })
@@ -135,8 +136,6 @@ app.use(express.static('assets')); //display background
 app.use(soundRouter);
 
 
-
-
 // Cleanup
 process.stdin.resume();//so the program will not close instantly
 
@@ -161,6 +160,17 @@ process.on('SIGINT', exitHandler.bind(null, {exit:true}));
 process.on('uncaughtException', exitHandler.bind(null, {exit:true}));
 
 // start server
-app.listen(app.get('port'), () => console.log('started server'));
+var server = ''
+if (!module.parent) {
+  server = app.listen(app.get('port'), () => console.log('started server'));
+}
 
+// module.exports.app = app
+// module.exports.client = client 
+module.exports = {
+  createGhostCallers : createGhostCallers,
+  server : server,
+  app : app,
+  baseURL : baseURL
+};
   
