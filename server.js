@@ -100,9 +100,12 @@ let createGhostCallers = () => {
       obj.sid = call.sid;
       console.log(`updating ${obj.conference} with call sid: ${call.sid}`)
       console.log(`Call status: ${call.status}`)
-      return "obj.sid"
+      return { success: true, twilioMessageSid: message.sid, logS3Key: s3key }
       // console.log("obj ", obj)
-    }).catch(err => console.log(err))
+    }).catch(err => {
+      console.log(err);
+      return({success: false});
+    })
   })
 }
 
@@ -164,13 +167,14 @@ var server = ''
 if (!module.parent) {
   server = app.listen(app.get('port'), () => console.log('started server'));
 }
-
-// module.exports.app = app
-// module.exports.client = client 
+ 
 module.exports = {
+  verbose: true,
   createGhostCallers : createGhostCallers,
   server : server,
   app : app,
-  baseURL : baseURL
+  baseURL : baseURL,
+  client: client,
+  testEnvironment: 'node'
 };
   

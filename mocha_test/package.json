@@ -4,6 +4,12 @@
   },
   "dependencies": {
     "async": "^2.6.1",
-    "supertest": "^3.3.0"
+    "chai": "^4.2.0",
+    "jsdom": "^12.2.0",
+    "mocha-jsdom": "^2.0.0",
+    "mock-browser": "^0.92.14",
+    "should": "^13.2.3",
+    "supertest": "^3.3.0",
+    "webpage": "^0.3.0"
   }
 }

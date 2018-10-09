@@ -15,12 +15,14 @@
                 console.log(note); //print in console
                 $.post('/soundparticipant', {"note": note}, function(data) {
                     console.log(data)
+                    return(data);
                 })
                 .done(() => console.log('done'))
                 .fail((err) => console.log(err))
             });
         });
     </script>
+    <title>pad</title>
     <link rel="stylesheet" href="css/pad.css" >
 </head>
 
