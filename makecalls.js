@@ -1,9 +1,10 @@
 var fs = require('fs');
 var request = require('request');
 require('dotenv').load();
-const client = require('twilio')(process.env.TWILIO_DOITLIVE_SID, process.env.TWILIO_DOITLIVE_AUTH_TOKEN);
+const client = require('twilio')(process.env.TWILIO_DOITLIVE_TEST_SID, process.env.TWILIO_DOITLIVE_TEST_AUTH_TOKEN);
 var tito_api_key = process.env.TITO_API_KEY;
 var _ = require('underscore');
+const numToTestWithFromJarod = '+15005550006'
 const fromNumber = '+18582392167' //'+14158775272' //
 var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 
@@ -18,7 +19,7 @@ function readJSON(path, callback) {
         client.calls.create({
           url: 'https://okgo-demo.herokuapp.com/joinconference',
           to: entry,
-          from: '+18503320435'
+          from: numToTestWithFromJarod
         }).then(call => console.log(call.sid))
           .catch(err => console.log(err))
       });
@@ -101,4 +102,4 @@ function generateJSONFromTwilioAPICall() {
   });
 }
 //generateJSONFromTwilioAPICall();
-generateNumsFromTitoAPI();
+generateNumsFromTitoAPI(); //29 seconds to make 9 calls
